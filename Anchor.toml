@@ -1,7 +1,7 @@
 [features]
 seeds = false
 [programs.localnet]
-yasp_zeta = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+vault_zeta = "GSNE8nVJ4WYCryAbugFZW7Jiw1VdeDvV1MG2VNqK4S3V"
 
 [registry]
 url = "https://anchor.projectserum.com"
