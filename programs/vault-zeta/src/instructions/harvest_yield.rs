@@ -10,7 +10,7 @@ pub struct HarvestYield<'info> {
   mut,
   has_one = authority,
   has_one = reserve,
-  seeds = [b"vault", reserve.key().as_ref(), authority.key().as_ref()],
+  seeds = [b"vault", reserve.key().as_ref(), vault.zeta_group.as_ref(), authority.key().as_ref()],
   bump = vault.bump
   )]
   pub vault: Box<Account<'info, Vault>>,

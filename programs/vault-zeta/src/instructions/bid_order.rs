@@ -10,7 +10,7 @@ pub struct BidOrder<'info> {
   #[account(
   mut,
   has_one = authority,
-  seeds = [b"vault", vault.reserve.as_ref(), vault.authority.as_ref()],
+  seeds = [b"vault", vault.reserve.as_ref(), zeta_group.key().as_ref(), authority.key().as_ref()],
   bump = vault.bump
   )]
   pub vault: Box<Account<'info, Vault>>,
@@ -30,9 +30,6 @@ pub struct BidOrder<'info> {
   /// CHECK:
   #[account(mut, address = vault.margin_account)]
   pub margin_account: AccountInfo<'info>,
-  /// CHECK:
-  #[account(mut)]
-  pub user_token_account: Box<Account<'info, TokenAccount>>,
   /// CHECK:
   #[account(mut)]
   pub socialized_loss_account: AccountInfo<'info>,
@@ -114,7 +111,7 @@ impl<'info> BidOrder<'info> {
         event_queue: self.event_queue.to_account_info(),
         bids: self.bids.to_account_info(),
         asks: self.asks.to_account_info(),
-        order_payer_token_account: self.authority.to_account_info(),
+        order_payer_token_account: self.pc_vault.to_account_info(),
         coin_vault: self.coin_vault.to_account_info(),
         pc_vault: self.pc_vault.to_account_info(),
         coin_wallet: self.coin_wallet.to_account_info(),

@@ -8,7 +8,7 @@ pub struct InitOpenOrders<'info> {
   #[account(
   mut,
   has_one = authority,
-  seeds = [b"vault", vault.reserve.as_ref(), vault.authority.as_ref()],
+  seeds = [b"vault", vault.reserve.as_ref(), zeta_group.key().as_ref(), authority.key().as_ref()],
   bump = vault.bump
   )]
   pub vault: Box<Account<'info, Vault>>,

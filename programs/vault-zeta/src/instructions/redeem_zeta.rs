@@ -9,7 +9,7 @@ pub struct RedeemZeta<'info> {
   #[account(
   mut,
   has_one = authority,
-  seeds = [b"vault", vault.reserve.as_ref(), vault.authority.as_ref()],
+  seeds = [b"vault", vault.reserve.as_ref(), zeta_group.key().as_ref(), authority.key().as_ref()],
   bump = vault.bump
   )]
   pub vault: Box<Account<'info, Vault>>,
@@ -36,9 +36,6 @@ pub struct RedeemZeta<'info> {
   pub margin_account: AccountInfo<'info>,
   /// CHECK:
   #[account(mut)]
-  pub user_token_account: AccountInfo<'info>,
-  /// CHECK:
-  #[account(mut)]
   pub socialized_loss_account: AccountInfo<'info>,
   /// CHECK:
   pub state: AccountInfo<'info>,
@@ -46,7 +43,6 @@ pub struct RedeemZeta<'info> {
   pub greeks: AccountInfo<'info>,
   pub token_program: Program<'info, Token>,
   pub zeta_program: Program<'info, cpi::zeta::ZetaProgram>,
-  pub pool_program_id: Program<'info, cpi::whirlpool::OrcaWhirlpool>,
 }
 
 impl<'info> RedeemZeta<'info> {

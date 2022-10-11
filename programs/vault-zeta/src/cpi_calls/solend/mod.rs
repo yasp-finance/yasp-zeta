@@ -1,6 +1,6 @@
 pub mod solend_program {
-  anchor_lang::prelude::declare_id!("LendZqTs7gn5CTSJU1jWKhKuVpjJGom45nnwPb2AMTi"); // mainnet
-  // anchor_lang::solana_program::declare_id!("LendZqTs7gn5CTSJU1jWKhKuVpjJGom45nnwPb2AMTi"); // devnet
+  // anchor_lang::prelude::declare_id!("LendZqTs7gn5CTSJU1jWKhKuVpjJGom45nnwPb2AMTi"); // mainnet
+  anchor_lang::prelude::declare_id!("ALend7Ketfx5bxh6ghsCDXAoDrhvEmsXT3cynB6aPLgx"); // devnet
 }
 
 mod deposit_liquidity;

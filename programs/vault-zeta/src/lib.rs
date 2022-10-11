@@ -10,7 +10,7 @@ pub use instructions::*;
 pub use macros::*;
 pub use errors::*;
 
-declare_id!("GSNE8nVJ4WYCryAbugFZW7Jiw1VdeDvV1MG2VNqK4S3V");
+declare_id!("CXeQdAb6PZHSEwtHQNQafDSxpSfVhG9JWhebsrwzP1Q8");
 
 #[program]
 pub mod vault_zeta {

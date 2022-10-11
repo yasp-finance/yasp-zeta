@@ -23,7 +23,7 @@ pub struct DepositToVault<'info> {
   #[account(
   mut,
   has_one = reserve,
-  seeds = [b"vault", reserve.key().as_ref(), vault.authority.as_ref()],
+  seeds = [b"vault", reserve.key().as_ref(), vault.zeta_group.as_ref(), vault.authority.as_ref()],
   bump = vault.bump
   )]
   pub vault: Box<Account<'info, Vault>>,

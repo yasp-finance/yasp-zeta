@@ -10,7 +10,7 @@ pub struct InitializeVault<'info> {
   init,
   space = 8 + Vault::MAXIMUM_SIZE,
   payer = authority,
-  seeds = [b"vault", reserve.key().as_ref(), authority.key().as_ref()],
+  seeds = [b"vault", reserve.key().as_ref(), zeta_group.key().as_ref(), authority.key().as_ref()],
   bump
   )]
   pub vault: Box<Account<'info, Vault>>,
@@ -30,11 +30,15 @@ pub struct InitializeVault<'info> {
   )]
   pub executor: AccountInfo<'info>,
   #[account(
-    token::mint = reserve.collateral.mint_pubkey,
-    token::authority = executor.key()
+  init,
+  payer = authority,
+  token::mint = reserve.collateral.mint_pubkey,
+  token::authority = executor.key()
   )]
   pub collateral_vault: Box<Account<'info, TokenAccount>>,
   #[account(
+  init,
+  payer = authority,
   token::mint = USDC,
   token::authority = executor.key()
   )]
@@ -72,13 +76,13 @@ impl<'info> InitializeVault<'info> {
       executor_bump,
       self.authority.key(),
       self.reserve.key(),
+      self.zeta_group.key(),
       self.collateral_vault.key(),
       self.reward_vault.key(),
       self.reward_vault.key(),
       deposit_limit,
       management_fee_bps,
     )
-
   }
 
   fn create_margin_account(
@@ -93,9 +97,9 @@ impl<'info> InitializeVault<'info> {
         payer: self.authority.clone(),
         zeta_group: self.zeta_group.to_account_info(),
         system_program: self.system_program.clone(),
-        zeta_program: self.zeta_program.to_account_info()
+        zeta_program: self.zeta_program.to_account_info(),
       },
-      seeds
+      seeds,
     )?;
     Ok(())
   }

@@ -29,13 +29,14 @@ pub struct Vault {
   // bump for the executor account
   pub current_cycle: StrategyCycle,
 
+  pub usdc_vault: Pubkey,
   pub collateral_vault: Pubkey,
   pub underlying_vault: Pubkey,
 
   pub margin_account: Pubkey,
-  pub usdc_vault: Pubkey,
 
   pub reserve: Pubkey,
+  pub zeta_group: Pubkey,
   pub authority: Pubkey,
 
   pub deposit_limit: u64,
@@ -55,7 +56,7 @@ pub struct Vault {
 }
 
 impl Vault {
-  pub const MAXIMUM_SIZE: usize = 1 + 1 + 1 + 1 + 32 * 6 + 8 * 12;
+  pub const MAXIMUM_SIZE: usize = 1 + 1 + 1 + 1 + 32 * 8 + 8 * 12;
 
   pub fn for_collateral(
     &self,
@@ -143,6 +144,7 @@ impl Vault {
     executor_bump: u8,
     authority: Pubkey,
     reserve: Pubkey,
+    zeta_group: Pubkey,
     collateral_vault: Pubkey,
     underlying_vault: Pubkey,
     usdc_vault: Pubkey,
@@ -154,6 +156,7 @@ impl Vault {
     self.executor_bump = executor_bump;
     self.authority = authority;
     self.reserve = reserve;
+    self.zeta_group = zeta_group;
     self.collateral_vault = collateral_vault;
     self.underlying_vault = underlying_vault;
     self.usdc_vault = usdc_vault;
