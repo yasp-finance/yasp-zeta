@@ -1,0 +1,63 @@
+import {PublicKey} from "@solana/web3.js";
+import {BeetStruct, bignum, u32, u64, u8, uniformFixedSizeArray} from "@metaplex-foundation/beet";
+import {publicKey} from "@metaplex-foundation/beet-solana";
+
+export interface SerumMarket {
+  publicKey: PublicKey,
+  padding1: number[],
+  accountFlags: boolean[],
+  ownAddress: PublicKey,
+  vaultSignerNonce: bignum,
+  baseMint: PublicKey,
+  quoteMint: PublicKey,
+  baseVault: PublicKey,
+  baseDepositsTotal: bignum,
+  baseFeesAccrued: bignum,
+  quoteVault: PublicKey,
+  quoteDepositsTotal: bignum,
+  quoteFeesAccrued: bignum,
+  quoteDustThreshold: bignum,
+  requestQueue: PublicKey,
+  eventQueue: PublicKey,
+  bids: PublicKey,
+  asks: PublicKey,
+  baseLotSize: bignum,
+  quoteLotSize: bignum,
+  feeRateBps: bignum,
+  referrerRebatesAccrued: bignum,
+  authority: PublicKey,
+  pruneAuthority: PublicKey,
+  consumeEventsAuthority: PublicKey,
+  padding2: number[],
+}
+
+export const MarketLayout = new BeetStruct<SerumMarket>([
+    ["padding1", uniformFixedSizeArray(u8, 5)],
+    ['accountFlags', u32],
+    ['ownAddress', publicKey],
+    ['vaultSignerNonce', u64],
+    ['baseMint', publicKey],
+    ['quoteMint', publicKey],
+    ['baseVault', publicKey],
+    ['baseDepositsTotal', u64],
+    ['baseFeesAccrued', u64],
+    ['quoteVault', publicKey],
+    ['quoteDepositsTotal', u64],
+    ['quoteFeesAccrued', u64],
+    ['quoteDustThreshold', u64],
+    ['requestQueue', publicKey],
+    ['eventQueue', publicKey],
+    ['bids', publicKey],
+    ['asks', publicKey],
+    ['baseLotSize', u64],
+    ['quoteLotSize', u64],
+    ['feeRateBps', u64],
+    ['referrerRebatesAccrued', u64],
+    ['authority', publicKey],
+    ['pruneAuthority', publicKey],
+    ['consumeEventsAuthority', publicKey],
+    ["padding2", uniformFixedSizeArray(u8, 999)]
+  ],
+  (args) => args as SerumMarket,
+  'SerumMarket'
+);
