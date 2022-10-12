@@ -16,7 +16,6 @@ pub fn deposit_reserve_liquidity(
   reserve_collateral_mint_pubkey: Pubkey,
   lending_market_pubkey: Pubkey,
   user_transfer_authority_pubkey: Pubkey,
-  clock_id: Pubkey,
   token_program_id: Pubkey,
 ) -> Instruction {
   let (lending_market_authority_pubkey, _bump_seed) = Pubkey::find_program_address(
@@ -34,7 +33,6 @@ pub fn deposit_reserve_liquidity(
       AccountMeta::new_readonly(lending_market_pubkey, false),
       AccountMeta::new_readonly(lending_market_authority_pubkey, false),
       AccountMeta::new_readonly(user_transfer_authority_pubkey, true),
-      AccountMeta::new_readonly(clock_id, false),
       AccountMeta::new_readonly(token_program_id, false),
     ],
     data: LendingInstruction::DepositReserveLiquidity { liquidity_amount }.pack(),
@@ -66,8 +64,6 @@ pub struct DepositReserveLiquidity<'info> {
   #[account(signer)]
   pub user_transfer_authority: AccountInfo<'info>,
   /// CHECK:
-  pub clock: AccountInfo<'info>,
-  /// CHECK:
   pub token_program: AccountInfo<'info>,
   /// CHECK:
   pub lending_program: AccountInfo<'info>,
@@ -87,12 +83,10 @@ pub fn handler_signed<'a, 'b, 'c, 'info>(
     ctx.accounts.reserve_collateral_mint.key(),
     ctx.accounts.lending_market.key(),
     ctx.accounts.user_transfer_authority.key(),
-    ctx.accounts.clock.key(),
     ctx.accounts.token_program.key(),
   );
 
   let accounts = [
-    ctx.accounts.lending_program.to_account_info(),
     ctx.accounts.source_liquidity.to_account_info(),
     ctx.accounts.destination_collateral.to_account_info(),
     ctx.accounts.reserve.to_account_info(),
@@ -101,7 +95,6 @@ pub fn handler_signed<'a, 'b, 'c, 'info>(
     ctx.accounts.lending_market.to_account_info(),
     ctx.accounts.lending_market_authority.to_account_info(),
     ctx.accounts.user_transfer_authority.to_account_info(),
-    ctx.accounts.clock.to_account_info(),
     ctx.accounts.token_program.to_account_info(),
   ];
   let initial_collateral = ctx.accounts.destination_collateral.amount;

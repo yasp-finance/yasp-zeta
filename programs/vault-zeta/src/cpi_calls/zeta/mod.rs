@@ -1,6 +1,6 @@
 pub mod zeta_program {
-  // anchor_lang::solana_program::declare_id!(""); // mainnet
-  anchor_lang::prelude::declare_id!("BG3oRikW8d16YjUEmX3ZxHm9SiJzrGtMhsSR8aCw1Cd7"); // devnet
+  anchor_lang::prelude::declare_id!("ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD"); // mainnet
+  // anchor_lang::prelude::declare_id!("BG3oRikW8d16YjUEmX3ZxHm9SiJzrGtMhsSR8aCw1Cd7"); // devnet
 }
 
 pub mod pyth_client;
