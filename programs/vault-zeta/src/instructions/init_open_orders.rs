@@ -18,6 +18,7 @@ pub struct InitOpenOrders<'info> {
   bump = vault.executor_bump
   )]
   pub executor: AccountInfo<'info>,
+  #[account(mut)]
   pub authority: Signer<'info>,
   /// CHECK: checked via external program
   pub state: AccountInfo<'info>,
@@ -45,6 +46,16 @@ pub struct InitOpenOrders<'info> {
 
 impl<'info> InitOpenOrders<'info> {
   pub fn initialize_open_orders(
+    &self,
+  ) -> Result<()> {
+    if self.open_orders.data_is_empty() {
+      self.init_open_orders()
+    } else {
+      Ok(())
+    }
+  }
+
+  fn init_open_orders(
     &self,
   ) -> Result<()> {
     let seeds = executor_seeds!(self.vault);

@@ -7,17 +7,17 @@ import {
   getMarginAccount,
   getMarketNode,
   getMintAuthority,
-  getOpenOrders, getQuoteMint,
+  getOpenOrders, getOpenOrdersMap, getQuoteMint,
   getSocializedLossAccount,
   getState, getZetaTokenVault,
-  getZetaVault
 } from "../pda/zeta-markets";
 import {ZetaGroup} from "../structs/zeta-markets";
-import {ZETA_SERUM_PROGRAM_ID, TOKEN_PROGRAM_ID, ZETA_PROGRAM_ID} from "../pubkeys";
+import {ZETA_SERUM_PROGRAM_ID, TOKEN_PROGRAM_ID, ZETA_PROGRAM_ID, SYSTEM_PROGRAM_ID} from "../pubkeys";
 import {SerumMarket} from "../structs/serum";
 
 
 export const createBidOrderIx = async (
+  marketIndex: number,
   authority: PublicKey,
   vault: PublicKey,
   market: SerumMarket,
@@ -28,14 +28,14 @@ export const createBidOrderIx = async (
   const [openOrders] = await getOpenOrders(market.publicKey, executor);
   const [state] = await getState();
   const marginAccount = await getMarginAccount(group.publicKey, executor);
-  const [marketNode] = await getMarketNode(group.publicKey, 0);
+  const [marketNode] = await getMarketNode(group.publicKey, marketIndex);
   const [mintAuthority] = await getMintAuthority();
   const [socializedLossAccount] = await getSocializedLossAccount(group.publicKey);
-  const [zetaVault] = await getZetaVault(group.underlyingMint);
   const [baseMint] = await getBaseMint(market.publicKey);
   const [quoteMint] = await getQuoteMint(market.publicKey);
   const [zetaBaseVault] = await getZetaTokenVault(baseMint);
   const [zetaQuoteVault] = await getZetaTokenVault(quoteMint);
+  const [openOrdersMap] = await getOpenOrdersMap(openOrders);
   return program.methods
     .bidOrder()
     .accountsStrict({
@@ -49,7 +49,7 @@ export const createBidOrderIx = async (
       market: market.publicKey,
       serumAuthority: market.authority,
       oracle: group.oracle,
-      zetaVault,
+      openOrdersMap,
       socializedLossAccount,
       greeks: group.greeks,
       requestQueue: market.requestQueue,
@@ -66,6 +66,7 @@ export const createBidOrderIx = async (
       zetaProgram: ZETA_PROGRAM_ID,
       rent: SYSVAR_RENT_PUBKEY,
       tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: SYSTEM_PROGRAM_ID,
       dexProgram: ZETA_SERUM_PROGRAM_ID,
     }).instruction()
 }

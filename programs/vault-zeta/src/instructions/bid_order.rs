@@ -4,7 +4,7 @@ use anchor_spl::mint::USDC;
 use serum_dex::critbit::{LeafNode, SlabView};
 use serum_dex::state::{Market};
 use crate::{executor_seeds, cpi_calls as cpi};
-use crate::cpi_calls::zeta::{MarketAccounts, ZetaGroup};
+use crate::cpi_calls::zeta::{MarginAccount, MarketAccounts, Side, ZetaGroup};
 use crate::structs::Vault;
 
 #[derive(Accounts)]
@@ -22,13 +22,12 @@ pub struct BidOrder<'info> {
   bump = vault.executor_bump
   )]
   pub executor: AccountInfo<'info>,
+  #[account(mut)]
   pub authority: Signer<'info>,
   /// CHECK: Oracle is currently unused and will be enabled on subsequent updates
   pub oracle: AccountInfo<'info>,
   /// CHECK:
   pub zeta_group: AccountInfo<'info>,
-  /// CHECK:
-  pub zeta_vault: AccountInfo<'info>,
   /// CHECK:
   #[account(mut, address = vault.margin_account)]
   pub margin_account: AccountInfo<'info>,
@@ -81,6 +80,9 @@ pub struct BidOrder<'info> {
   pub open_orders: AccountInfo<'info>,
   /// CHECK:
   #[account(mut)]
+  pub open_orders_map: AccountInfo<'info>,
+  /// CHECK:
+  #[account(mut)]
   pub market_node: AccountInfo<'info>,
   /// CHECK:
   #[account(mut)]
@@ -89,6 +91,7 @@ pub struct BidOrder<'info> {
   pub mint_authority: AccountInfo<'info>,
   pub rent: Sysvar<'info, Rent>,
   pub token_program: Program<'info, Token>,
+  pub system_program: Program<'info, System>,
   pub zeta_program: Program<'info, cpi::zeta::ZetaProgram>,
 }
 
@@ -97,6 +100,16 @@ impl<'info> BidOrder<'info> {
   //   self.bid_order(strike_price, size)?;
   //   Ok(())
   // }
+
+  pub fn bid_order(&self) -> Result<()> {
+    if self.open_orders.data_is_empty() {
+      self.init_open_orders().unwrap();
+    }
+
+    let (price, size) = self.calculate_order(100000000000).unwrap();
+    self.place_order(price, size, Side::Bid)?;
+    Ok(())
+  }
 
   fn calculate_order(&self, max_amount: u64) -> Result<(u64, u64)> {
     let market_info = self.market.to_account_info();
@@ -109,10 +122,8 @@ impl<'info> BidOrder<'info> {
       false
     ).unwrap();
 
-    let bids = market
-      .load_bids_mut(&bids).unwrap();
-    let best_price = bids
-      .find_max().unwrap();
+    let bids = market.load_bids_mut(&bids).unwrap();
+    let best_price = bids.find_max().unwrap();
     let best_price_node = bids
       .get(best_price as u32).unwrap()
       .as_leaf().unwrap();
@@ -123,7 +134,32 @@ impl<'info> BidOrder<'info> {
     Ok((price, size))
   }
 
-  pub fn bid_order(&self) -> Result<()> {
+  fn init_open_orders(
+    &self,
+  ) -> Result<()> {
+    let seeds = executor_seeds!(self.vault);
+    cpi::zeta::zeta_client::initialize_open_orders(
+      self.zeta_program.to_account_info(),
+      cpi::zeta::InitializeOpenOrders {
+        state: self.state.to_account_info(),
+        margin_account: self.margin_account.to_account_info(),
+        authority: self.executor.to_account_info(),
+        payer: self.authority.clone(),
+        market: self.market.to_account_info(),
+        serum_authority:self.serum_authority.to_account_info(),
+        open_orders_map: self.open_orders_map.to_account_info(),
+        zeta_group: self.zeta_group.to_account_info(),
+        dex_program: self.dex_program.to_account_info(),
+        system_program: self.system_program.clone(),
+        open_orders: self.open_orders.to_account_info(),
+        rent: self.rent.clone(),
+      },
+      seeds
+    )?;
+    Ok(())
+  }
+
+  fn place_order(&self, price: u64, size: u64, kind: Side) -> Result<()> {
     let seeds = executor_seeds!(self.vault);
     let accounts = cpi::zeta::PlaceOrder {
       zeta_group: self.zeta_group.to_account_info(),
@@ -138,7 +174,7 @@ impl<'info> BidOrder<'info> {
         event_queue: self.event_queue.to_account_info(),
         bids: self.bids.to_account_info(),
         asks: self.asks.to_account_info(),
-        order_payer_token_account: self.pc_vault.to_account_info(),
+        order_payer_token_account: self.pc_wallet.to_account_info(),
         coin_vault: self.coin_vault.to_account_info(),
         pc_vault: self.pc_vault.to_account_info(),
         coin_wallet: self.coin_wallet.to_account_info(),
@@ -153,11 +189,6 @@ impl<'info> BidOrder<'info> {
       serum_authority: self.serum_authority.to_account_info(),
       dex_program: self.dex_program.to_account_info(),
     };
-
-    let (price, size) = self
-      .calculate_order(self.pc_wallet.amount)
-      .unwrap();
-    msg!("wallet: {}", self.pc_wallet.amount);
     msg!("price: {}", price);
     msg!("size: {}", size);
     cpi::zeta::zeta_client::place_order(
@@ -165,7 +196,7 @@ impl<'info> BidOrder<'info> {
       accounts,
       price,
       size,
-      cpi::zeta::Side::Bid,
+      kind,
       None,
       seeds
     )?;

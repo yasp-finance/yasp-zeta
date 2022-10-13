@@ -264,7 +264,7 @@
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -624,7 +624,7 @@
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -634,11 +634,6 @@
         },
         {
           "name": "zetaGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "zetaVault",
           "isMut": false,
           "isSigner": false
         },
@@ -723,6 +718,11 @@
           "isSigner": false
         },
         {
+          "name": "openOrdersMap",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "marketNode",
           "isMut": true,
           "isSigner": false
@@ -744,6 +744,11 @@
         },
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         },

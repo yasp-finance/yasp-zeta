@@ -264,7 +264,7 @@ export type VaultZeta = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -624,7 +624,7 @@ export type VaultZeta = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -634,11 +634,6 @@ export type VaultZeta = {
         },
         {
           "name": "zetaGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "zetaVault",
           "isMut": false,
           "isSigner": false
         },
@@ -723,6 +718,11 @@ export type VaultZeta = {
           "isSigner": false
         },
         {
+          "name": "openOrdersMap",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "marketNode",
           "isMut": true,
           "isSigner": false
@@ -744,6 +744,11 @@ export type VaultZeta = {
         },
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -2696,7 +2701,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -3056,7 +3061,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -3066,11 +3071,6 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "zetaGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "zetaVault",
           "isMut": false,
           "isSigner": false
         },
@@ -3155,6 +3155,11 @@ export const IDL: VaultZeta = {
           "isSigner": false
         },
         {
+          "name": "openOrdersMap",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "marketNode",
           "isMut": true,
           "isSigner": false
@@ -3176,6 +3181,11 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         },

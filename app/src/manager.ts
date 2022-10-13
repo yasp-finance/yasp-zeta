@@ -22,6 +22,7 @@ import {VaultZeta} from "./artifacts/types/vault_zeta";
 import {SerumMarket} from "./structs/serum";
 import {simulateTransaction} from "@project-serum/anchor/dist/cjs/utils/rpc";
 import {createBidOrderIx} from "./instructions/bid-order";
+import {createUpdatePricingIx} from "./instructions/update-pricing";
 
 export class Manager {
   private readonly serumLoader: SerumLoader;
@@ -218,17 +219,28 @@ export class Manager {
   ) {
     const data = await this.program.account.vault.fetch(vault);
     const group = this.validate<ZetaGroup>(data.zetaGroup);
-    const product = group.products.find(p => {
-      //@ts-ignore
+    const productId = group.products.findIndex(p => {
       const sameStrike = new BN(p.strike.value).eq(strike);
       return sameStrike && p.strike.isSet && p.kind === 1;
     });
-    if (!product) {
+    if (productId === -1) {
       throw new Error(`market with strike "${strike.toNumber()}" doesn't exists`);
     }
-    const market = this.validate<SerumMarket>(product.market);
+    const marketAddress = group.products[productId].market;
+    const market = this.validate<SerumMarket>(marketAddress);
     return this.exec([
+      await createUpdatePricingIx(
+        0,
+        authority,
+        group
+      ),
+      await createUpdatePricingIx(
+        1,
+        authority,
+        group
+      ),
       await createBidOrderIx(
+        productId,
         authority.publicKey,
         vault,
         market,

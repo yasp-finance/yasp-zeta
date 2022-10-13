@@ -84,14 +84,15 @@ pub struct InitializeOpenOrders<'info> {
   pub zeta_group: AccountInfo<'info>,
   /// CHECK: checked via external program
   pub dex_program: AccountInfo<'info>,
+  pub system_program: Program<'info, System>,
   /// CHECK: checked via external program
   #[account(mut)]
   pub open_orders: AccountInfo<'info>,
   /// CHECK: checked via external program
   #[account(mut)]
   pub margin_account: AccountInfo<'info>,
-  /// CHECK: checked via external program
-  #[account(signer)]
+  /// CHECK: Marked mutable since it pays. checked via external program
+  #[account(mut, signer)]
   pub authority: AccountInfo<'info>,
   #[account(mut)]
   pub payer: Signer<'info>,
@@ -103,7 +104,6 @@ pub struct InitializeOpenOrders<'info> {
   #[account(mut)]
   pub open_orders_map: AccountInfo<'info>,
   pub rent: Sysvar<'info, Rent>,
-  pub system_program: Program<'info, System>,
 }
 
 // Market accounts are the accounts used to place orders against the dex minus
