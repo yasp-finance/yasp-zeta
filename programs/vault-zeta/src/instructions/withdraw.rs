@@ -34,15 +34,13 @@ pub struct WithdrawFromVault<'info> {
   pub executor: AccountInfo<'info>,
   #[account(
   mut,
+  mint::decimals = 9,
+  mint::authority = vault.key(),
   seeds = [b"shares", vault.key().as_ref()],
   bump = vault.mint_bump
   )]
   pub shares_mint: Box<Account<'info, Mint>>,
-  #[account(
-  mut,
-  token::authority = executor,
-  token::mint = reserve.collateral.mint_pubkey
-  )]
+  #[account(mut, address = vault.collateral_vault)]
   pub collateral_vault: Box<Account<'info, TokenAccount>>,
   /// CHECK:
   #[account(mut)]
@@ -54,8 +52,8 @@ pub struct WithdrawFromVault<'info> {
   pub lending_market: AccountInfo<'info>,
   /// CHECK:
   pub lending_market_authority: AccountInfo<'info>,
+  #[account(mut)]
   pub reserve: Box<Account<'info, cpi::solend::Reserve>>,
-  pub clock: Sysvar<'info, Clock>,
   pub token_program: Program<'info, Token>,
   pub lending_program: Program<'info, cpi::solend::SolendProgram>,
 }
@@ -90,25 +88,34 @@ impl<'info> WithdrawFromVault<'info> {
       underlying_value,
       &self.reserve,
     ).unwrap();
+    msg!("max_shares_amount: {}", max_shares_amount);
+    msg!("total_underlying: {}", total_underlying);
+    msg!("underlying_value: {}", underlying_value);
+    msg!("shares_amount: {}", shares_amount);
+    msg!("collateral_amount: {}", collateral_amount);
     self.burn_shares(shares_amount)?;
-    self.redeem_collateral(collateral_amount)?;
-    self.vault.after_withdraw(underlying_value)
+    let actual = self.redeem_collateral(collateral_amount)?;
+    msg!("actual: {}", actual);
+    msg!("expected: {}", underlying_value);
+    self.vault.after_withdraw(actual)
   }
 
   fn burn_shares(&self, shares_amount: u64) -> Result<()> {
-    let seeds = vault_seeds!(self.vault);
-    let seeds: &[&[&[u8]]] = &[&seeds[..]];
-    let cpi_accounts = Burn {
-      mint: self.shares_mint.to_account_info(),
-      from: self.user_shares.to_account_info(),
-      authority: self.executor.to_account_info(),
-    };
-    let cpi_program = self.token_program.to_account_info();
-    let ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds);
+    let signer = vault_seeds!(self.vault);
+    let seeds: &[&[&[u8]]] = &[&signer[..]];
+    let ctx = CpiContext::new_with_signer(
+      self.token_program.to_account_info(),
+      Burn {
+        mint: self.shares_mint.to_account_info(),
+        from: self.user_shares.to_account_info(),
+        authority: self.user_account.to_account_info(),
+      },
+      seeds
+    );
     burn(ctx, shares_amount)
   }
 
-  fn redeem_collateral(&self, amount_in: u64) -> Result<u64> {
+  fn redeem_collateral(&mut self, amount_in: u64) -> Result<u64> {
     let seeds = executor_seeds!(self.vault);
     let signer: &[&[&[u8]]] = &[&seeds[..]];
     let cpi = CpiContext::new_with_signer(
@@ -122,11 +129,14 @@ impl<'info> WithdrawFromVault<'info> {
         lending_market: self.lending_market.to_account_info(),
         lending_market_authority: self.lending_market_authority.to_account_info(),
         user_transfer_authority: self.executor.to_account_info(),
-        clock: self.clock.to_account_info(),
         token_program: self.token_program.to_account_info(),
         lending_program: self.lending_program.to_account_info(),
       }, signer);
+    let liquidity_before = self.user_token_account.amount;
     cpi::solend::redeem_collateral(cpi, amount_in)?;
-    Ok(0)
+    self.user_token_account.reload()?;
+    let liquidity_after = self.user_token_account.amount
+      .checked_sub(liquidity_before).unwrap();
+    Ok(liquidity_after)
   }
 }

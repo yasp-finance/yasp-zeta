@@ -26,6 +26,7 @@ pub struct ReinvestZeta<'info> {
   /// CHECK:
   pub zeta_group: AccountInfo<'info>,
   /// CHECK:
+  #[account(mut)]
   pub zeta_vault: AccountInfo<'info>,
   /// CHECK:
   #[account(mut, address = vault.margin_account)]

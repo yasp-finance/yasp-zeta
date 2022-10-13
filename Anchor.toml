@@ -1,7 +1,7 @@
 [features]
 seeds = false
 [programs.localnet]
-vault_zeta = "GSNE8nVJ4WYCryAbugFZW7Jiw1VdeDvV1MG2VNqK4S3V"
+vault_zeta = "CXeQdAb6PZHSEwtHQNQafDSxpSfVhG9JWhebsrwzP1Q8"
 
 [registry]
 url = "https://anchor.projectserum.com"
@@ -11,4 +11,96 @@ cluster = "localnet"
 wallet = "/Users/georgegeorge/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/vault-zeta.test.ts"
+
+[test.validator]
+url = "https://ssc-dao.genesysgo.net/"
+warp_slot = "156029280"
+
+[test]
+startup_wait=40000
+
+[[test.genesis]]
+address = "CXeQdAb6PZHSEwtHQNQafDSxpSfVhG9JWhebsrwzP1Q8"
+program = "target/deploy/vault_zeta.so"
+
+[[test.validator.account]]
+address = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+filename = "tests/accounts/usdc.json"
+
+[[test.validator.account]]
+address = "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"
+filename = "tests/accounts/msol.json"
+
+## Tokens
+# Wrapped SOL mint
+[[test.validator.clone]]
+address = "So11111111111111111111111111111111111111112"
+# ORCA mint
+[[test.validator.clone]]
+address = "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"
+# NINJA mint
+[[test.validator.clone]]
+address = "FgX1WD9WzMU3yLwXaFSarPfkgzjLb2DZCqmkx9ExpuvJ"
+# RAY mint
+[[test.validator.clone]]
+address = "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
+# SRM mint
+[[test.validator.clone]]
+address = "SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"
+# Saber IOU token
+[[test.validator.clone]]
+address = "iouQcQBAiEXe6cKLS85zmZxUqaCqBdeHFpqKoSz615u"
+# Marinade Token
+[[test.validator.clone]]
+address = "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"
+[[test.validator.clone]]
+address = "HPnqfiRSVvuBjfHN9ah4Kecb6J9et2UTnNgUwtAJdV26"
+[[test.validator.clone]]
+address = "9fdKm3kucGsgGaFnTqXPkF8GxTNTfcFjH5aLcZNvHxPw"
+[[test.validator.clone]]
+address = "ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD"
+[[test.validator.clone]]
+address = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+[[test.validator.clone]]
+address = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+[[test.validator.clone]]
+address = "DMCvGv1fS5rMcAvEDPDDBawPqbDRSzJh2Bo6qXCmgJkR"
+[[test.validator.clone]]
+address="So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo"
+[[test.validator.clone]]
+address="7nYabs9dUhvxYwdTnrWVBL9MYviKSfrEbdWCUbcnwkpF"
+[[test.validator.clone]]
+address="SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
+[[test.validator.clone]]
+address="BgxfHJDzm44T7XG68MYKx7YisTjZu73tVovyZSjJMpmw"
+[[test.validator.clone]]
+address="8SheGtsopRUDzdiD6v6BR9a6bqZ9QwywYQY99Fp5meNf"
+[[test.validator.clone]]
+address="993dVFL2uXWYeoXuEBFXR4BijeXdTv4s6BzsCjJZuwqk"
+[[test.validator.clone]]
+address="4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY"
+[[test.validator.clone]]
+address="Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD"
+[[test.validator.clone]]
+address="UtRy8gcEu9fCkDuUrU8EmC7Uc6FZy5NCwttzG7i6nkw"
+[[test.validator.clone]]
+address="BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW"
+[[test.validator.clone]]
+address="CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"
+[[test.validator.clone]]
+address="5Gdxn4yquneifE6uk9tK8X4CqHfWKjW2BvYU25hAykwP"
+[[test.validator.clone]]
+address="8eExPiLp47xbSDYkbuem4qnLUpbLTfZBeFuEJoh6EUr2"
+[[test.validator.clone]]
+address="A4ZbGoDjbUhmvgSSZD5J9yjpVsYGXXjoTYZrkRdecGAS"
+[[test.validator.clone]]
+address="6gucuqexxEuY1BBmpJjYWnTt3QaUqkkmsGE7ydRtCkJY"
+[[test.validator.clone]]
+address="EWGc1UC22P6EWuquZD8vbo7FgnmNFccLDeiita9nubME"
+[[test.validator.clone]]
+address="CnHarS7kLN6yneLcKWT6KDFKQa1yZpGoQBNQQNaarESF"
+[[test.validator.clone]]
+address="zDEXqXEG7gAyxb1Kg9mK5fPnUdENCGKzWrM21RMdWRq"
+[[test.validator.clone]]
+address="26mEmKBpLsvbXj5uvptPAbzbTKjmzaoq64DHPiu9KyeS"

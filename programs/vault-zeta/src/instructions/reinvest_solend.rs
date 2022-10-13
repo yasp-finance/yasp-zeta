@@ -21,17 +21,9 @@ pub struct ReinvestSolend<'info> {
   bump = vault.executor_bump
   )]
   pub executor: AccountInfo<'info>,
-  #[account(
-  mut,
-  token::authority = executor,
-  token::mint = reserve.collateral.mint_pubkey
-  )]
+  #[account(mut, address = vault.collateral_vault)]
   pub collateral_vault: Box<Account<'info, TokenAccount>>,
-  #[account(
-  mut,
-  token::authority = executor,
-  token::mint = reserve.liquidity.mint_pubkey
-  )]
+  #[account(mut, address = vault.underlying_vault)]
   pub underlying_vault: Box<Account<'info, TokenAccount>>,
   /// CHECK:
   #[account(mut)]
@@ -43,8 +35,8 @@ pub struct ReinvestSolend<'info> {
   pub lending_market: AccountInfo<'info>,
   /// CHECK:
   pub lending_market_authority: AccountInfo<'info>,
+  #[account(mut)]
   pub reserve: Box<Account<'info, cpi::solend::Reserve>>,
-  pub clock: Sysvar<'info, Clock>,
   pub token_program: Program<'info, Token>,
   pub lending_program: Program<'info, cpi::solend::SolendProgram>,
 }
@@ -72,7 +64,6 @@ impl<'info> ReinvestSolend<'info> {
         lending_market: self.lending_market.to_account_info(),
         lending_market_authority: self.lending_market_authority.to_account_info(),
         user_transfer_authority: self.executor.to_account_info(),
-        clock: self.clock.to_account_info(),
         token_program: self.token_program.to_account_info(),
         lending_program: self.lending_program.to_account_info(),
       }, seeds);

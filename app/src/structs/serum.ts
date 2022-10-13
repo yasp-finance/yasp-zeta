@@ -32,7 +32,7 @@ export interface SerumMarket {
 }
 
 export const MarketLayout = new BeetStruct<SerumMarket>([
-    ["padding1", uniformFixedSizeArray(u8, 5)],
+    ["padding1", uniformFixedSizeArray(u8, 8)],
     ['accountFlags', u32],
     ['ownAddress', publicKey],
     ['vaultSignerNonce', u64],

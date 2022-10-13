@@ -24,7 +24,7 @@ export const createRedeemZetaIx = async (
   const [state] = await getState();
   const marginAccount = await getMarginAccount(group.publicKey, executor);
   const [socializedLossAccount] = await getSocializedLossAccount(group.publicKey);
-  const [zetaVault] = await getZetaVault(group.underlyingMint);
+  const [zetaVault] = await getZetaVault(group.publicKey);
   return await program.methods
     .redeemZeta(amountIn)
     .accountsStrict({

@@ -30,19 +30,20 @@ pub struct InitializeVault<'info> {
   )]
   pub executor: AccountInfo<'info>,
   #[account(
-  init,
-  payer = authority,
-  token::mint = reserve.collateral.mint_pubkey,
-  token::authority = executor.key()
+    token::mint = reserve.collateral.mint_pubkey,
+    token::authority = executor.key()
   )]
   pub collateral_vault: Box<Account<'info, TokenAccount>>,
   #[account(
-  init,
-  payer = authority,
+  token::mint = reserve.liquidity.mint_pubkey,
+  token::authority = executor.key()
+  )]
+  pub underlying_vault: Box<Account<'info, TokenAccount>>,
+  #[account(
   token::mint = USDC,
   token::authority = executor.key()
   )]
-  pub reward_vault: Box<Account<'info, TokenAccount>>,
+  pub usdc_vault: Box<Account<'info, TokenAccount>>,
   pub reserve: Box<Account<'info, cpi::solend::Reserve>>,
   #[account(mut)]
   pub authority: Signer<'info>,
@@ -78,8 +79,9 @@ impl<'info> InitializeVault<'info> {
       self.reserve.key(),
       self.zeta_group.key(),
       self.collateral_vault.key(),
-      self.reward_vault.key(),
-      self.reward_vault.key(),
+      self.underlying_vault.key(),
+      self.usdc_vault.key(),
+      self.margin_account.key(),
       deposit_limit,
       management_fee_bps,
     )
@@ -93,7 +95,7 @@ impl<'info> InitializeVault<'info> {
       self.zeta_program.to_account_info(),
       cpi::zeta::InitializeMarginAccount {
         margin_account: self.margin_account.to_account_info(),
-        authority: self.authority.clone(),
+        authority: self.executor.to_account_info(),
         payer: self.authority.clone(),
         zeta_group: self.zeta_group.to_account_info(),
         system_program: self.system_program.clone(),

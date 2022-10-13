@@ -1,3 +1,4 @@
+use std::num::NonZeroU64;
 use super::zeta_context::*;
 use super::*;
 use cpi_interface::global_interface;
@@ -74,13 +75,13 @@ pub fn initialize_open_orders<'info>(
 }
 
 pub fn place_order<'info>(
-    zeta_program: AccountInfo<'info>,
-    cpi_accounts: PlaceOrder<'info>,
-    price: u64,
-    size: u64,
-    side: Side,
-    client_order_id: Option<u64>,
-    seeds: &[&[u8]],
+  zeta_program: AccountInfo<'info>,
+  cpi_accounts: PlaceOrder<'info>,
+  price: u64,
+  size: u64,
+  side: Side,
+  client_order_id: Option<u64>,
+  seeds: &[&[u8]],
 ) -> Result<()> {
     let signer = &[&seeds[..]];
     let cpi_ctx = CpiContext::new_with_signer(zeta_program, cpi_accounts, signer);

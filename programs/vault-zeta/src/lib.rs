@@ -59,10 +59,8 @@ pub mod vault_zeta {
 
   pub fn bid_order(
     ctx: Context<BidOrder>,
-    price: u64,
-    size: u64
   ) -> Result<()> {
-    ctx.accounts.bid_order(price, size)?;
+    ctx.accounts.bid_order()?;
     Ok(())
   }
 

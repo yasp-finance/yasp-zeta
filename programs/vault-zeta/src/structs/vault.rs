@@ -63,11 +63,10 @@ impl Vault {
     underlying_value: u64,
     reserve: &Reserve,
   ) -> Option<u64> {
-    ratio!(
-      underlying_value,
-      reserve.collateral.mint_total_supply,
-      reserve.liquidity.available_amount
-    )
+    let total_supply = reserve.liquidity.total_supply().unwrap();
+    let rate = reserve.collateral
+      .exchange_rate(total_supply).unwrap();
+    Some(rate.liquidity_to_collateral(underlying_value).unwrap())
   }
 
 
@@ -76,19 +75,22 @@ impl Vault {
     collateral_value: u64,
     reserve: &Reserve
   ) -> Option<u64> {
-    ratio!(
-      collateral_value,
-      reserve.liquidity.available_amount,
-      reserve.collateral.mint_total_supply
-    )
+    let total_supply = reserve.liquidity.total_supply().unwrap();
+    let rate = reserve.collateral
+      .exchange_rate(total_supply).unwrap();
+    Some(rate.collateral_to_liquidity(collateral_value).unwrap())
   }
 
   pub fn current_locked_profit(&self, now: i64) -> Option<u64> {
+    if self.last_gain == 0 {
+      return Some(0);
+    }
     let time_diff = now
       .checked_sub(self.last_gain).unwrap();
     if time_diff < 0 {
       return Some(self.locked_profit);
     }
+    msg!("time diff: {}", time_diff);
     let degradation = (time_diff as u64)
       .checked_mul(self.locked_profit_degradation).unwrap();
     if degradation < DEGRADATION_COEFFICIENT {
@@ -148,6 +150,7 @@ impl Vault {
     collateral_vault: Pubkey,
     underlying_vault: Pubkey,
     usdc_vault: Pubkey,
+    margin_account: Pubkey,
     deposit_limit: u64,
     management_fee_bps: u64,
   ) -> Result<()> {
@@ -160,6 +163,7 @@ impl Vault {
     self.collateral_vault = collateral_vault;
     self.underlying_vault = underlying_vault;
     self.usdc_vault = usdc_vault;
+    self.margin_account = margin_account;
     self.deposit_limit = deposit_limit;
     // 6 hours lock
     self.locked_profit_degradation = ratio!(

@@ -3,27 +3,23 @@ import {VaultZeta} from "../artifacts/types/vault_zeta";
 import {getVaultInfo} from "../pda/vault";
 import {PublicKey, SYSVAR_RENT_PUBKEY, TransactionInstruction} from "@solana/web3.js";
 import {
+  getBaseMint,
   getMarginAccount,
   getMarketNode,
   getMintAuthority,
-  getOpenOrders,
+  getOpenOrders, getQuoteMint,
   getSocializedLossAccount,
-  getState,
+  getState, getZetaTokenVault,
   getZetaVault
 } from "../pda/zeta-markets";
 import {ZetaGroup} from "../structs/zeta-markets";
-import {SERUM_PROGRAM_ID_V3, TOKEN_PROGRAM_ID, ZETA_PROGRAM_ID} from "../pubkeys";
+import {ZETA_SERUM_PROGRAM_ID, TOKEN_PROGRAM_ID, ZETA_PROGRAM_ID} from "../pubkeys";
 import {SerumMarket} from "../structs/serum";
-import BN from "bn.js";
 
 
-const createBidOrderIx = async (
-  price: BN,
-  size: BN,
+export const createBidOrderIx = async (
   authority: PublicKey,
   vault: PublicKey,
-  baseWallet: PublicKey,
-  quoteWallet: PublicKey,
   market: SerumMarket,
   group: ZetaGroup,
   program: Program<VaultZeta>
@@ -36,8 +32,12 @@ const createBidOrderIx = async (
   const [mintAuthority] = await getMintAuthority();
   const [socializedLossAccount] = await getSocializedLossAccount(group.publicKey);
   const [zetaVault] = await getZetaVault(group.underlyingMint);
-  return await program.methods
-    .bidOrder(price, size)
+  const [baseMint] = await getBaseMint(market.publicKey);
+  const [quoteMint] = await getQuoteMint(market.publicKey);
+  const [zetaBaseVault] = await getZetaTokenVault(baseMint);
+  const [zetaQuoteVault] = await getZetaTokenVault(quoteMint);
+  const data = await program.methods
+    .bidOrder()
     .accountsStrict({
       vault,
       executor,
@@ -58,15 +58,16 @@ const createBidOrderIx = async (
       asks: market.asks,
       coinVault: market.baseVault,
       pcVault: market.quoteVault,
-      coinWallet: market.baseVault,
-      pcWallet: market.quoteVault,
+      coinWallet: zetaBaseVault,
+      pcWallet: zetaQuoteVault,
       marketNode: marketNode,
       marketMint: market.quoteMint,
       mintAuthority: mintAuthority,
       zetaProgram: ZETA_PROGRAM_ID,
       rent: SYSVAR_RENT_PUBKEY,
       tokenProgram: TOKEN_PROGRAM_ID,
-      dexProgram: SERUM_PROGRAM_ID_V3,
+      dexProgram: ZETA_SERUM_PROGRAM_ID,
     })
-    .instruction();
+  console.log(JSON.stringify(await data.pubkeys()))
+  return data.instruction()
 }

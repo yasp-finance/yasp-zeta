@@ -1,5 +1,5 @@
 import {PublicKey} from "@solana/web3.js";
-import {SERUM_PROGRAM_ID_V3, ZETA_PROGRAM_ID} from "../pubkeys";
+import {ZETA_SERUM_PROGRAM_ID, ZETA_PROGRAM_ID} from "../pubkeys";
 
 export async function getState(
   programId = ZETA_PROGRAM_ID
@@ -46,7 +46,7 @@ export async function getMarketNode(
 export async function getOpenOrders(
   market: PublicKey,
   userKey: PublicKey,
-  dexId = SERUM_PROGRAM_ID_V3,
+  dexId = ZETA_SERUM_PROGRAM_ID,
   programId = ZETA_PROGRAM_ID,
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
@@ -71,7 +71,7 @@ export async function getOpenOrdersMap(
 }
 
 export async function getSerumAuthority(
-  programId = SERUM_PROGRAM_ID_V3
+  programId = ZETA_SERUM_PROGRAM_ID
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
     [Buffer.from("serum")],
@@ -101,9 +101,9 @@ export async function getSocializedLossAccount(
   );
 }
 
-export async function getVault(
+export async function getZetaVault(
+  zetaGroup: PublicKey,
   programId = ZETA_PROGRAM_ID,
-  zetaGroup: PublicKey
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
     [
@@ -127,7 +127,7 @@ export async function getSerumVault(
   );
 }
 
-export async function getZetaVault(
+export async function getZetaTokenVault(
   mint: PublicKey,
   programId = ZETA_PROGRAM_ID,
 ): Promise<[PublicKey, number]> {
@@ -260,8 +260,8 @@ export async function getMarketIndexes(
 }
 
 export async function getBaseMint(
+  market: PublicKey,
   programId = ZETA_PROGRAM_ID,
-  market: PublicKey
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
     [
@@ -273,8 +273,8 @@ export async function getBaseMint(
 }
 
 export async function getQuoteMint(
+  market: PublicKey,
   programId = ZETA_PROGRAM_ID,
-  market: PublicKey
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
     [

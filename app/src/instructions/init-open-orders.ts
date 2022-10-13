@@ -4,7 +4,7 @@ import {VaultZeta} from "../artifacts/types/vault_zeta";
 import {
   ZETA_PROGRAM_ID,
   SYSTEM_PROGRAM_ID,
-  SERUM_PROGRAM_ID_V3
+  ZETA_SERUM_PROGRAM_ID
 } from "../pubkeys";
 import {getVaultInfo} from "../pda/vault";
 import {ZetaGroup} from "../structs/zeta-markets";
@@ -42,7 +42,7 @@ export const createInitOpenOrdersIx = async (
       market: market.publicKey,
       serumAuthority,
       openOrdersMap,
-      dexProgram: SERUM_PROGRAM_ID_V3,
+      dexProgram: ZETA_SERUM_PROGRAM_ID,
       systemProgram: SYSTEM_PROGRAM_ID,
       rent: SYSVAR_RENT_PUBKEY,
       zetaProgram: ZETA_PROGRAM_ID,

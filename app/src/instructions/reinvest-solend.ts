@@ -31,7 +31,6 @@ export const createReinvestSolendIx = async (
       reserveCollateralMint: reserve.collateral.mintPubkey,
       lendingMarket: reserve.lendingMarket,
       lendingMarketAuthority,
-      clock: CLOCK_PROGRAM_ID,
       tokenProgram: TOKEN_PROGRAM_ID,
       lendingProgram: SOLEND_PROGRAM_ID,
       authority: authority,

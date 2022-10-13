@@ -11,7 +11,7 @@ use std::{
   cmp::{Ordering},
 };
 use std::ops::Deref;
-use super::math::Decimal;
+use super::math::{Decimal, Rate, WAD, TryMul, TryDiv, TrySub, TryAdd};
 
 /// Percentage of an obligation that can be repaid during each liquidation call
 pub const LIQUIDATION_CLOSE_FACTOR: u8 = 20;
@@ -24,6 +24,9 @@ pub const MAX_LIQUIDATABLE_VALUE_AT_ONCE: u64 = 500_000;
 
 /// Number of slots to consider stale after
 pub const STALE_AFTER_SLOTS_ELAPSED: u64 = 1;
+
+pub const INITIAL_COLLATERAL_RATIO: u64 = 1;
+const INITIAL_COLLATERAL_RATE: u64 = INITIAL_COLLATERAL_RATIO * WAD;
 
 
 fn pack_decimal(decimal: Decimal, dst: &mut [u8; 16]) {
@@ -123,6 +126,55 @@ pub struct ReserveLiquidity {
   pub market_price: Decimal,
 }
 
+impl ReserveLiquidity {
+  pub fn total_supply(&self) -> Result<Decimal, ProgramError> {
+    Decimal::from(self.available_amount)
+      .try_add(self.borrowed_amount_wads)?
+      .try_sub(self.accumulated_protocol_fees_wads)
+  }
+}
+
+/// Collateral exchange rate
+#[derive(Clone, Copy, Debug)]
+pub struct CollateralExchangeRate(Rate);
+
+impl CollateralExchangeRate {
+  /// Convert reserve collateral to liquidity
+  pub fn collateral_to_liquidity(&self, collateral_amount: u64) -> anchor_lang::prelude::Result<u64> {
+    self.decimal_collateral_to_liquidity(collateral_amount.into())?
+      .try_floor_u64()
+  }
+
+  /// Convert reserve collateral to liquidity
+  pub fn decimal_collateral_to_liquidity(
+    &self,
+    collateral_amount: Decimal,
+  ) -> Result<Decimal, ProgramError> {
+    collateral_amount.try_div(self.0)
+  }
+
+  /// Convert reserve liquidity to collateral
+  pub fn liquidity_to_collateral(&self, liquidity_amount: u64) -> anchor_lang::prelude::Result<u64> {
+    self.decimal_liquidity_to_collateral(liquidity_amount.into())?
+      .try_floor_u64()
+  }
+
+  /// Convert reserve liquidity to collateral
+  pub fn decimal_liquidity_to_collateral(
+    &self,
+    liquidity_amount: Decimal,
+  ) -> Result<Decimal, ProgramError> {
+    liquidity_amount.try_mul(self.0)
+  }
+}
+
+impl From<CollateralExchangeRate> for Rate {
+  fn from(exchange_rate: CollateralExchangeRate) -> Self {
+    exchange_rate.0
+  }
+}
+
+
 /// Reserve collateral
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct ReserveCollateral {
@@ -132,6 +184,22 @@ pub struct ReserveCollateral {
   pub mint_total_supply: u64,
   /// Reserve collateral supply address
   pub supply_pubkey: Pubkey,
+}
+
+impl ReserveCollateral {
+  pub fn exchange_rate(
+    &self,
+    total_liquidity: Decimal,
+  ) -> Result<CollateralExchangeRate, ProgramError> {
+    let rate = if self.mint_total_supply == 0 || total_liquidity == Decimal::zero() {
+      Rate::from_scaled_val(INITIAL_COLLATERAL_RATE)
+    } else {
+      let mint_total_supply = Decimal::from(self.mint_total_supply);
+      Rate::try_from(mint_total_supply.try_div(total_liquidity)?)?
+    };
+
+    Ok(CollateralExchangeRate(rate))
+  }
 }
 
 /// Reserve configuration values

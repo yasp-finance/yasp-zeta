@@ -22,6 +22,7 @@ pub fn deposit_reserve_liquidity(
     &[&lending_market_pubkey.to_bytes()[..PUBKEY_BYTES]],
     &program_id,
   );
+
   Instruction {
     program_id,
     accounts: vec![
@@ -97,14 +98,11 @@ pub fn handler_signed<'a, 'b, 'c, 'info>(
     ctx.accounts.user_transfer_authority.to_account_info(),
     ctx.accounts.token_program.to_account_info(),
   ];
-  let initial_collateral = ctx.accounts.destination_collateral.amount;
   invoke_signed(
     &ix,
     &accounts,
     &ctx.signer_seeds,
   )?;
-  let collateral_increased = ctx.accounts.destination_collateral.amount
-    .checked_sub(initial_collateral).unwrap();
-  Ok(collateral_increased)
+  Ok(0)
 }
 

@@ -29,7 +29,6 @@ export const createHarvestYieldIx = async (
       lendingMarket: reserve.lendingMarket,
       lendingMarketAuthority: lendingMarketAuthority,
       underlyingVault: data.underlyingVault,
-      clock: CLOCK_PROGRAM_ID,
       lendingProgram: SOLEND_PROGRAM_ID,
       tokenProgram: TOKEN_PROGRAM_ID,
     })

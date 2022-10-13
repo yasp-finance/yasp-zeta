@@ -39,8 +39,8 @@ pub struct HarvestYield<'info> {
   pub lending_market: AccountInfo<'info>,
   /// CHECK:
   pub lending_market_authority: AccountInfo<'info>,
+  #[account(mut)]
   pub reserve: Box<Account<'info, cpi::solend::Reserve>>,
-  pub clock: Sysvar<'info, Clock>,
   pub token_program: Program<'info, Token>,
   pub lending_program: Program<'info, cpi::solend::SolendProgram>,
 }
@@ -52,16 +52,20 @@ impl<'info> HarvestYield<'info> {
       self.collateral_vault.amount,
       &self.reserve
     ).unwrap();
-    let total_assets = self.vault.total_assets().unwrap();
+    let total_assets = self.vault.free_funds(clock.unix_timestamp).unwrap();
+    msg!("real underlying: {}", real_underlying);
+    msg!("total_assets: {}", total_assets);
+    if real_underlying > total_assets {
+      let accrued_yield = real_underlying
+        .checked_sub(total_assets).unwrap();
+      let collateral_amount = self.vault.for_collateral(
+        accrued_yield,
+        &self.reserve
+      ).unwrap();
 
-    let accrued_yield = real_underlying
-      .checked_sub(total_assets).unwrap();
-    let collateral_amount = self.vault.for_collateral(
-      accrued_yield,
-      &self.reserve
-    ).unwrap();
-    self.redeem_collateral(collateral_amount)?;
-    self.vault.after_harvest(accrued_yield, clock.unix_timestamp)?;
+      self.redeem_collateral(collateral_amount)?;
+      self.vault.after_harvest(accrued_yield, clock.unix_timestamp)?;
+    }
     Ok(())
   }
 
@@ -79,7 +83,6 @@ impl<'info> HarvestYield<'info> {
         lending_market: self.lending_market.to_account_info(),
         lending_market_authority: self.lending_market_authority.to_account_info(),
         user_transfer_authority: self.executor.to_account_info(),
-        clock: self.clock.to_account_info(),
         token_program: self.token_program.to_account_info(),
         lending_program: self.lending_program.to_account_info()
       }, seeds);

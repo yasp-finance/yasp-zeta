@@ -20,6 +20,8 @@ import BN from "bn.js";
 import {Program} from "@project-serum/anchor";
 import {VaultZeta} from "./artifacts/types/vault_zeta";
 import {SerumMarket} from "./structs/serum";
+import {simulateTransaction} from "@project-serum/anchor/dist/cjs/utils/rpc";
+import {createBidOrderIx} from "./instructions/bid-order";
 
 export class Manager {
   private readonly serumLoader: SerumLoader;
@@ -65,11 +67,15 @@ export class Manager {
     tx.feePayer = signers[0].publicKey;
     tx.sign(...signers);
 
-    if (simulate) {
-      return await connection.simulateTransaction(tx, signers);
-    } else {
-      return await connection.sendTransaction(tx, signers);
+    const response = await simulateTransaction(
+      connection, tx, signers, "confirmed"
+    ).catch(err => err);
+    if (!simulate) {
+      await this.program.provider
+        .sendAndConfirm(tx, signers)
+        // .catch(err => console.error(err))
     }
+    return response;
   }
 
   async devnetAirdrop(sol: number, address: PublicKey) {
@@ -87,23 +93,23 @@ export class Manager {
   ) {
     const reserve = this.validate<Reserve>(reserveAddress);
     const group = this.validate<ZetaGroup>(groupAddress);
-    return this.exec([
-      await createInitializeIx(
-        depositLimit,
-        managementFeeBps,
-        authority.publicKey,
-        group,
-        reserve,
-        this.program
-      ),
-    ], [authority], simulate);
+    const ixs = await createInitializeIx(
+      depositLimit,
+      managementFeeBps,
+      authority.publicKey,
+      group,
+      reserve,
+      this.program
+    );
+    return this.exec(ixs, [authority], simulate);
   }
 
 
   async deposit(
     amountOut: BN,
-    authority: Signer,
+    user: Signer,
     userTokenAccount: PublicKey,
+    userSharesAccount: PublicKey,
     vault: PublicKey,
     simulate = false
   ) {
@@ -112,21 +118,23 @@ export class Manager {
     return this.exec([
       await createDepositIx(
         amountOut,
-        authority.publicKey,
+        user.publicKey,
         userTokenAccount,
+        userSharesAccount,
         vault,
         data.collateralVault,
         reserve,
         this.program
       ),
-    ], [authority], simulate);
+    ], [user], simulate);
   }
 
 
   async withdraw(
     amountOut: BN,
-    authority: Signer,
+    user: Signer,
     userTokenAccount: PublicKey,
+    userSharesAccount: PublicKey,
     vault: PublicKey,
     simulate = false
   ) {
@@ -135,14 +143,15 @@ export class Manager {
     return this.exec([
       await createWithdrawIx(
         amountOut,
-        authority.publicKey,
+        user.publicKey,
         userTokenAccount,
+        userSharesAccount,
         vault,
         data.collateralVault,
         reserve,
         this.program
       ),
-    ], [authority], simulate);
+    ], [user], simulate);
   }
 
   async initOpenOrders(
@@ -182,6 +191,53 @@ export class Manager {
     ], [authority], simulate);
   }
 
+  async reinvestZeta(
+    authority: Signer,
+    vault: PublicKey,
+    simulate = false
+  ) {
+    const data = await this.program.account.vault.fetch(vault);
+    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    return this.exec([
+      await createReinvestZetaIx(
+        authority.publicKey,
+        vault,
+        data.usdcVault,
+        group,
+        this.program
+      ),
+    ], [authority], simulate);
+  }
+
+  async bidOrder(
+    strike: BN,
+    kind: "put" | "call",
+    authority: Signer,
+    vault: PublicKey,
+    simulate = false
+  ) {
+    const data = await this.program.account.vault.fetch(vault);
+    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    const product = group.products.find(p => {
+      //@ts-ignore
+      const sameStrike = new BN(p.strike.value).eq(strike);
+      return sameStrike && p.strike.isSet && p.kind === 1;
+    });
+    if (!product) {
+      throw new Error(`market with strike "${strike.toNumber()}" doesn't exists`);
+    }
+    const market = this.validate<SerumMarket>(product.market);
+    return this.exec([
+      await createBidOrderIx(
+        authority.publicKey,
+        vault,
+        market,
+        group,
+        this.program
+      ),
+    ], [authority], simulate);
+  }
+
   async redeemZeta(
     amount: BN,
     authority: Signer,
@@ -193,24 +249,6 @@ export class Manager {
     return this.exec([
       await createRedeemZetaIx(
         amount,
-        authority.publicKey,
-        vault,
-        data.usdcVault,
-        group,
-        this.program
-      ),
-    ], [authority], simulate);
-  }
-
-  async reinvestZeta(
-    authority: Signer,
-    vault: PublicKey,
-    simulate = false
-  ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const group = this.validate<ZetaGroup>(data.zetaGroup);
-    return this.exec([
-      await createReinvestZetaIx(
         authority.publicKey,
         vault,
         data.usdcVault,

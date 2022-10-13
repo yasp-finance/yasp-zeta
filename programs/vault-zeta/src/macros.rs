@@ -15,6 +15,7 @@ macro_rules! vault_seeds {
     &[
       b"vault" as &[u8],
       &$vault.reserve.to_bytes(),
+      &$vault.zeta_group.to_bytes(),
       &$vault.authority.to_bytes(),
       &[$vault.bump],
     ]

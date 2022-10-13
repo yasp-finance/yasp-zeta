@@ -26,7 +26,12 @@ export type VaultZeta = {
           "isSigner": false
         },
         {
-          "name": "rewardVault",
+          "name": "underlyingVault",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "usdcVault",
           "isMut": false,
           "isSigner": false
         },
@@ -142,12 +147,7 @@ export type VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -228,12 +228,7 @@ export type VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -380,12 +375,7 @@ export type VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -583,7 +573,7 @@ export type VaultZeta = {
         },
         {
           "name": "zetaVault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -763,16 +753,7 @@ export type VaultZeta = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "price",
-          "type": "u64"
-        },
-        {
-          "name": "size",
-          "type": "u64"
-        }
-      ]
+      "args": []
     },
     {
       "name": "redeemZeta",
@@ -809,7 +790,7 @@ export type VaultZeta = {
         },
         {
           "name": "zetaVault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -900,12 +881,7 @@ export type VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -2482,7 +2458,12 @@ export const IDL: VaultZeta = {
           "isSigner": false
         },
         {
-          "name": "rewardVault",
+          "name": "underlyingVault",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "usdcVault",
           "isMut": false,
           "isSigner": false
         },
@@ -2598,12 +2579,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -2684,12 +2660,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -2836,12 +2807,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -3039,7 +3005,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "zetaVault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -3219,16 +3185,7 @@ export const IDL: VaultZeta = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "price",
-          "type": "u64"
-        },
-        {
-          "name": "size",
-          "type": "u64"
-        }
-      ]
+      "args": []
     },
     {
       "name": "redeemZeta",
@@ -3265,7 +3222,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "zetaVault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -3356,12 +3313,7 @@ export const IDL: VaultZeta = {
         },
         {
           "name": "reserve",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {

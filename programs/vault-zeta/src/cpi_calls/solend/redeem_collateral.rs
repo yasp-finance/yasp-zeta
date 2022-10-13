@@ -97,15 +97,12 @@ pub fn handler_signed<'a, 'b, 'c, 'info>(
     ctx.accounts.token_program.to_account_info()
   ];
 
-  let initial_liquidity = ctx.accounts.destination_liquidity.amount;
   invoke_signed(
     &ix,
     &accounts,
     &ctx.signer_seeds,
   )?;
-  let liquidity_increased = ctx.accounts.destination_liquidity.amount
-    .checked_sub(initial_liquidity).unwrap();
-  Ok(liquidity_increased)
+  Ok(0)
 }
 
 

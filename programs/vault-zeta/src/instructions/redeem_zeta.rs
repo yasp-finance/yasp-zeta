@@ -1,7 +1,9 @@
+use std::borrow::Borrow;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 use anchor_spl::mint::USDC;
 use crate::{executor_seeds, cpi_calls as cpi};
+use crate::cpi_calls::zeta::MarginAccount;
 use crate::structs::Vault;
 
 #[derive(Accounts)]
@@ -30,6 +32,7 @@ pub struct RedeemZeta<'info> {
   /// CHECK:
   pub zeta_group: AccountInfo<'info>,
   /// CHECK:
+  #[account(mut)]
   pub zeta_vault: AccountInfo<'info>,
   /// CHECK:
   #[account(mut, address = vault.margin_account)]

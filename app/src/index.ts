@@ -26,12 +26,13 @@ const main = async () => {
   const authority = provider.wallet.payer as Signer;
   // await manager.devnetAirdrop(2, authority.publicKey);
   // USDC reserve?
-  const reserve = new PublicKey("Ejh6ryZJq3Lfj2vsVSb5qLmk8N7C9aaS3ATPRuAnZRPU");
-  const group = new PublicKey("8Ccch7LW5hd5j2NW8HdhUbDqB1yUN4dULVMNNHtfbPbV");
-  console.log(await manager.createVault(
-    new BN(10 ** 10), new BN(100),
-    authority, reserve, group, true
-  ));
+  const reserve = new PublicKey("EjUgEaPpKMg2nqex9obb46gZQ6Ar9mWSdVKbw9A6PyXA");
+  const group = new PublicKey("HPnqfiRSVvuBjfHN9ah4Kecb6J9et2UTnNgUwtAJdV26");
+
+  // console.log(await manager.createVault(
+  //   new BN(10 ** 10), new BN(100),
+  //   authority, reserve, group, true
+  // ));
   // console.log(await manager.deposit(
   //   new BN(10 ** 10), new BN(100),
   //   authority, reserve, group, true
