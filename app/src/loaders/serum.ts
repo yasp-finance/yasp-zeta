@@ -13,7 +13,6 @@ export class SerumLoader extends Loader {
     markets.forEach(m => {
       mapper.set(m.publicKey.toString(), m)
     });
-    console.log(markets[0].baseMint.toString());
     return mapper
   }
 
@@ -25,8 +24,6 @@ export class SerumLoader extends Loader {
         ]
       }
     );
-    console.log("expect", MarketLayout.byteSize);
-    console.log("all", new Set(accounts.map(a => a.accountInfo.data.length)));
 
     return this.deserialize(accounts, MarketLayout);
   }

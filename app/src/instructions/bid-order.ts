@@ -36,7 +36,7 @@ export const createBidOrderIx = async (
   const [quoteMint] = await getQuoteMint(market.publicKey);
   const [zetaBaseVault] = await getZetaTokenVault(baseMint);
   const [zetaQuoteVault] = await getZetaTokenVault(quoteMint);
-  const data = await program.methods
+  return program.methods
     .bidOrder()
     .accountsStrict({
       vault,
@@ -67,7 +67,5 @@ export const createBidOrderIx = async (
       rent: SYSVAR_RENT_PUBKEY,
       tokenProgram: TOKEN_PROGRAM_ID,
       dexProgram: ZETA_SERUM_PROGRAM_ID,
-    })
-  console.log(JSON.stringify(await data.pubkeys()))
-  return data.instruction()
+    }).instruction()
 }
