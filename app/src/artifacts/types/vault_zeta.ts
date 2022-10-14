@@ -1296,12 +1296,6 @@ export type VaultZeta = {
             "type": "u8"
           },
           {
-            "name": "currentCycle",
-            "type": {
-              "defined": "StrategyCycle"
-            }
-          },
-          {
             "name": "usdcVault",
             "type": "publicKey"
           },
@@ -2201,26 +2195,6 @@ export type VaultZeta = {
           },
           {
             "name": "UseEmergencyWithdraw"
-          }
-        ]
-      }
-    },
-    {
-      "name": "StrategyCycle",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Uninitialized"
-          },
-          {
-            "name": "Deposit"
-          },
-          {
-            "name": "Auction"
-          },
-          {
-            "name": "Harvest"
           }
         ]
       }
@@ -3733,12 +3707,6 @@ export const IDL: VaultZeta = {
             "type": "u8"
           },
           {
-            "name": "currentCycle",
-            "type": {
-              "defined": "StrategyCycle"
-            }
-          },
-          {
             "name": "usdcVault",
             "type": "publicKey"
           },
@@ -4638,26 +4606,6 @@ export const IDL: VaultZeta = {
           },
           {
             "name": "UseEmergencyWithdraw"
-          }
-        ]
-      }
-    },
-    {
-      "name": "StrategyCycle",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Uninitialized"
-          },
-          {
-            "name": "Deposit"
-          },
-          {
-            "name": "Auction"
-          },
-          {
-            "name": "Harvest"
           }
         ]
       }
