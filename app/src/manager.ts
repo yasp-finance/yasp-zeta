@@ -1,6 +1,3 @@
-import {SerumLoader} from "./loaders/serum";
-import {SolendLoader} from "./loaders/solend";
-import {ZetaMarketsLoader} from "./loaders/zeta-markets";
 import {LAMPORTS_PER_SOL, PublicKey, Signer, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {
   createDepositIx,
@@ -14,19 +11,14 @@ import {
   createSwapToUSDCIx,
   createWithdrawIx
 } from "./instructions";
-import {Reserve} from "./structs/solend";
-import {ZetaGroup} from "./structs/zeta-markets";
 import BN from "bn.js";
 import {Program} from "@project-serum/anchor";
 import {VaultZeta} from "./artifacts/types/vault_zeta";
-import {SerumMarket} from "./structs/serum";
 import {simulateTransaction} from "@project-serum/anchor/dist/cjs/utils/rpc";
 import {createBidOrderIx} from "./instructions/bid-order";
-import {createUpdatePricingIx} from "./instructions/update-pricing";
-import {WhirlpoolLoader} from "./loaders/whirlpool";
-import {VaultLoader} from "./loaders/vault";
-import {Vault} from "./structs/vault";
-import {Whirlpool} from "./structs/whirlpool";
+import {createUpdatePricingIx} from "./utils/update-pricing";
+import {WhirlpoolLoader, VaultLoader, ZetaMarketsLoader, SolendLoader, SerumLoader} from "./loaders";
+import {Vault, SerumMarket, ZetaGroup,Reserve, Whirlpool} from "./structs";
 
 export class Manager {
   private readonly serumLoader: SerumLoader;
@@ -61,6 +53,7 @@ export class Manager {
       ...this.mapper.entries(),
       ...vaultMapper.entries()
     ]);
+    return vaultMapper;
   }
 
   async preload() {

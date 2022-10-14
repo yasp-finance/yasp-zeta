@@ -61,7 +61,7 @@ pub struct DepositToVault<'info> {
 
 impl<'info> DepositToVault<'info> {
   pub fn deposit(&mut self, max_amount_in: u64) -> Result<()> {
-    if self.vault.total_deposit + (max_amount_in as u64) > self.vault.deposit_limit {
+    if self.vault.statistic.total_deposit + (max_amount_in as u64) > self.vault.deposit_limit {
       return err!(VaultError::VaultIsFull);
     }
 

@@ -6,6 +6,17 @@ use crate::cpi_calls::solend::Reserve;
 pub const DEGRADATION_COEFFICIENT: u64 = 1000000000000000000;
 
 
+#[derive(AnchorDeserialize, AnchorSerialize, Default, Copy, Clone)]
+pub struct Statistic {
+  pub total_deposit: u64,
+  pub total_withdraw: u64,
+  pub total_gain: u64,
+  pub locked_profit_degradation: u64,
+  pub locked_profit: u64,
+  pub last_gain: i64,
+}
+
+
 #[account]
 #[derive(Default)]
 pub struct Vault {
@@ -25,19 +36,21 @@ pub struct Vault {
   pub zeta_group: Pubkey,
   pub authority: Pubkey,
 
-  pub deposit_limit: u64,
-  pub total_deposit: u64,
-  pub total_withdraw: u64,
-  pub total_gain: u64,
-  pub total_harvest: u64, // total amount of token, that was harvested on Solend
+  pub statistic: Statistic,
 
-  pub locked_profit_degradation: u64,
-  pub locked_profit: u64,
+  pub deposit_limit: u64,
+  // pub total_deposit: u64,
+  // pub total_withdraw: u64,
+  // pub total_gain: u64,
+
+  // pub locked_profit_degradation: u64,
+  // pub locked_profit: u64,
   pub management_fee_bps: u64,
   pub harvest_interval: i64,
 
+  pub total_harvest: u64, // total amount of token, that was harvested on Solend
   pub last_harvest: i64,
-  pub last_gain: i64,
+
   pub created_at: i64,
 }
 
@@ -68,19 +81,19 @@ impl Vault {
   }
 
   pub fn current_locked_profit(&self, now: i64) -> Option<u64> {
-    if self.last_gain == 0 {
+    if self.statistic.last_gain == 0 {
       return Some(0);
     }
     let time_diff = now
-      .checked_sub(self.last_gain).unwrap();
+      .checked_sub(self.statistic.last_gain).unwrap();
     if time_diff < 0 {
-      return Some(self.locked_profit);
+      return Some(self.statistic.locked_profit);
     }
     msg!("time diff: {}", time_diff);
     let degradation = (time_diff as u64)
-      .checked_mul(self.locked_profit_degradation).unwrap();
+      .checked_mul(self.statistic.locked_profit_degradation).unwrap();
     if degradation < DEGRADATION_COEFFICIENT {
-      ratio!(self.locked_profit, degradation, DEGRADATION_COEFFICIENT)
+      ratio!(self.statistic.locked_profit, degradation, DEGRADATION_COEFFICIENT)
     } else {
       Some(0)
     }
@@ -88,9 +101,9 @@ impl Vault {
 
 
   pub fn total_assets(&self) -> Option<u64> {
-    self.total_deposit
-      .checked_add(self.total_gain)?
-      .checked_sub(self.total_withdraw)
+    self.statistic.total_deposit
+      .checked_add(self.statistic.total_gain)?
+      .checked_sub(self.statistic.total_withdraw)
   }
 
   pub fn free_funds(&self, now: i64) -> Option<u64> {
@@ -152,7 +165,7 @@ impl Vault {
     self.margin_account = margin_account;
     self.deposit_limit = deposit_limit;
     // 6 hours lock
-    self.locked_profit_degradation = ratio!(
+    self.statistic.locked_profit_degradation = ratio!(
       DEGRADATION_COEFFICIENT, 46_u64, 1000000_u64
     ).unwrap();
     // 7 days in ms
@@ -163,13 +176,13 @@ impl Vault {
   }
 
   pub fn after_deposit(&mut self, amount: u64) -> Result<()> {
-    self.total_deposit = self.total_deposit
+    self.statistic.total_deposit = self.statistic.total_deposit
       .checked_add(amount).unwrap();
     Ok(())
   }
 
   pub fn after_withdraw(&mut self, amount: u64) -> Result<()> {
-    self.total_withdraw = self.total_withdraw
+    self.statistic.total_withdraw = self.statistic.total_withdraw
       .checked_add(amount).unwrap();
     Ok(())
   }
@@ -187,11 +200,12 @@ impl Vault {
   }
 
   pub fn after_gain(&mut self, amount: u64, now: i64) -> Result<()> {
-    self.total_gain = self.total_gain
+    self.statistic.total_gain = self.statistic.total_gain
       .checked_add(amount).unwrap();
-    self.locked_profit = self.current_locked_profit(now).unwrap()
+    self.statistic.locked_profit = self
+      .current_locked_profit(now).unwrap()
       .checked_add(amount).unwrap();
-    self.last_gain = now;
+    self.statistic.last_gain = now;
     Ok(())
   }
 }

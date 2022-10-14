@@ -1,7 +1,7 @@
 import {Signer, TransactionInstruction} from "@solana/web3.js";
 import {ZETA_PROGRAM_ID} from "../pubkeys";
-import {ZetaGroup} from "../structs/zeta-markets";
 import {getState} from "../pda/zeta-markets";
+import {ZetaGroup} from "../structs";
 
 export async function createUpdatePricingIx(
   expiryIndex: number,
