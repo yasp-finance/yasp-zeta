@@ -74,7 +74,10 @@ export class Manager {
     if (!simulate) {
       await this.program.provider
         .sendAndConfirm(tx, signers)
-        // .catch(err => console.error(err))
+        .catch(err => {
+          console.error(err)
+          throw err
+        })
     }
     return response;
   }

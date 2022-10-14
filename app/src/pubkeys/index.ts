@@ -23,6 +23,10 @@ export const USDC_MINT = new PublicKey(
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 );
 
+export const SOL_MINT = new PublicKey(
+  "So11111111111111111111111111111111111111112"
+);
+
 // export const ZETA_SERUM_PROGRAM_ID = new PublicKey(
 //   '5CmWtUihvSrJpaUrpJ3H1jUa9DRjYz4v2xs6c3EgQWMf' // DEVNET
 // );
