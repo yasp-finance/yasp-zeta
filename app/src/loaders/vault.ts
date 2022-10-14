@@ -1,41 +1,31 @@
 import {Loader} from "./base";
-import {MarketLayout, SerumMarket} from "../structs/serum";
-import {ZETA_SERUM_PROGRAM_ID} from "../pubkeys";
-import {VaultZeta} from "../artifacts/types/vault_zeta";
-import {Program} from "@project-serum/anchor";
+import {VAULT_ZETA_PROGRAM_ID} from "../pubkeys";
+import {Vault, VaultLayout} from "../structs/vault";
+
 
 
 export class VaultLoader extends Loader {
-  constructor(url: string, program: Program<VaultZeta>) {
+  constructor(url: string) {
     super(url);
   }
 
   async preload() {
     const mapper = new Map();
-    const markets = await this.forMarkets();
-    markets.forEach(m => {
+    const vaults = await this.forVaults();
+    vaults.forEach(m => {
       mapper.set(m.publicKey.toString(), m)
     });
     return mapper
   }
 
-  async forMarkets(): Promise<SerumMarket[]> {
+  async forVaults(): Promise<Vault[]> {
     const accounts = await this.forProgramAccounts(
-      ZETA_SERUM_PROGRAM_ID, {
+      VAULT_ZETA_PROGRAM_ID, {
         filters: [
-          {dataSize: MarketLayout.byteSize}
+          {dataSize: VaultLayout.byteSize}
         ]
       }
     );
-
-    return this.deserialize(accounts, MarketLayout);
+    return this.deserialize(accounts, VaultLayout);
   }
-
-  // forLendingMarkets(): Promise<LendingMarket[]> {
-  //
-  // }
-  //
-  // forLendingMarket(address: PublicKey): Promise<LendingMarket> {
-  //
-  // }
 }

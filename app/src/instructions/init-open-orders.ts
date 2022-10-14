@@ -14,16 +14,17 @@ import {
   getState,
 } from "../pda/zeta-markets";
 import {SerumMarket} from "../structs/serum";
+import {Vault} from "../structs/vault";
 
 
 export const createInitOpenOrdersIx = async (
   authority: PublicKey,
-  vault: PublicKey,
+  vault: Vault,
   market: SerumMarket,
   group: ZetaGroup,
   program: Program<VaultZeta>
 ): Promise<TransactionInstruction> => {
-  const {executor} = await getVaultInfo(vault);
+  const {executor} = await getVaultInfo(vault.publicKey);
   const [openOrders] = await getOpenOrders(market.publicKey, executor);
   const [state] = await getState();
   const marginAccount = await getMarginAccount(group.publicKey, executor);
@@ -32,7 +33,7 @@ export const createInitOpenOrdersIx = async (
   return await program.methods
     .initOpenOrders()
     .accountsStrict({
-      vault,
+      vault: vault.publicKey,
       executor,
       authority,
       marginAccount,

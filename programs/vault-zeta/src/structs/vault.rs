@@ -5,29 +5,15 @@ use crate::cpi_calls::solend::Reserve;
 
 pub const DEGRADATION_COEFFICIENT: u64 = 1000000000000000000;
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
-pub enum StrategyCycle {
-  Uninitialized,
-  Deposit,
-  Auction,
-  Harvest,
-}
-
-impl Default for StrategyCycle {
-  fn default() -> Self {
-    StrategyCycle::Uninitialized
-  }
-}
 
 #[account]
 #[derive(Default)]
 pub struct Vault {
   pub bump: u8,
-  pub mint_bump: u8,
   // bump for share mint
-  pub executor_bump: u8,
+  pub mint_bump: u8,
   // bump for the executor account
-  pub current_cycle: StrategyCycle,
+  pub executor_bump: u8,
 
   pub usdc_vault: Pubkey,
   pub collateral_vault: Pubkey,
@@ -56,7 +42,7 @@ pub struct Vault {
 }
 
 impl Vault {
-  pub const MAXIMUM_SIZE: usize = 1 + 1 + 1 + 1 + 32 * 8 + 8 * 12;
+  pub const MAXIMUM_SIZE: usize = 1 * 3 + 32 * 7 + 8 * 12;
 
   pub fn for_collateral(
     &self,

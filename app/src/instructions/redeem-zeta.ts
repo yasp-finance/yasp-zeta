@@ -10,17 +10,17 @@ import {
   getState, getZetaVault
 } from "../pda/zeta-markets";
 import {ZetaGroup} from "../structs/zeta-markets";
+import {Vault} from "../structs/vault";
 
 
 export const createRedeemZetaIx = async (
   amountIn: BN,
   authority: PublicKey,
-  vault: PublicKey,
-  usdcVault: PublicKey,
+  vault: Vault,
   group: ZetaGroup,
   program: Program<VaultZeta>
 ): Promise<TransactionInstruction> => {
-  const {executor} = await getVaultInfo(vault);
+  const {executor} = await getVaultInfo(vault.publicKey);
   const [state] = await getState();
   const marginAccount = await getMarginAccount(group.publicKey, executor);
   const [socializedLossAccount] = await getSocializedLossAccount(group.publicKey);
@@ -28,10 +28,10 @@ export const createRedeemZetaIx = async (
   return await program.methods
     .redeemZeta(amountIn)
     .accountsStrict({
-      vault,
+      vault: vault.publicKey,
       executor,
       authority,
-      usdcVault: usdcVault,
+      usdcVault: vault.usdcVault,
       marginAccount,
       zetaGroup: group.publicKey,
       state: state,

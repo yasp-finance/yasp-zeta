@@ -14,17 +14,18 @@ import {
 import {ZetaGroup} from "../structs/zeta-markets";
 import {ZETA_SERUM_PROGRAM_ID, TOKEN_PROGRAM_ID, ZETA_PROGRAM_ID, SYSTEM_PROGRAM_ID} from "../pubkeys";
 import {SerumMarket} from "../structs/serum";
+import {Vault} from "../structs/vault";
 
 
 export const createBidOrderIx = async (
   marketIndex: number,
   authority: PublicKey,
-  vault: PublicKey,
+  vault: Vault,
   market: SerumMarket,
   group: ZetaGroup,
   program: Program<VaultZeta>
 ): Promise<TransactionInstruction> => {
-  const {executor} = await getVaultInfo(vault);
+  const {executor} = await getVaultInfo(vault.publicKey);
   const [openOrders] = await getOpenOrders(market.publicKey, executor);
   const [state] = await getState();
   const marginAccount = await getMarginAccount(group.publicKey, executor);
@@ -39,7 +40,7 @@ export const createBidOrderIx = async (
   return program.methods
     .bidOrder()
     .accountsStrict({
-      vault,
+      vault: vault.publicKey,
       executor,
       authority,
       marginAccount,

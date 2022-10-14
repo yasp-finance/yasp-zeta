@@ -20,6 +20,7 @@ export type WhirlpoolRewardInfo = {
 }
 
 export type Whirlpool = {
+  publicKey: PublicKey,
   padding: number[]
   whirlpoolsConfig: PublicKey
   whirlpoolBump: number[]

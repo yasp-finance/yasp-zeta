@@ -6,6 +6,7 @@ import {TOKEN_PROGRAM_ID, SOLEND_PROGRAM_ID} from "../pubkeys";
 import {getVaultInfo} from "../pda/vault";
 import {Reserve} from "../structs/solend";
 import {getLendingMarketAuthority} from "../pda/solend";
+import {Vault} from "../structs/vault";
 
 
 export const createDepositIx = async (
@@ -13,24 +14,23 @@ export const createDepositIx = async (
   authority: PublicKey,
   userTokenAccount: PublicKey,
   userShares: PublicKey,
-  vault: PublicKey,
-  collateralVault: PublicKey,
+  vault: Vault,
   reserve: Reserve,
   program: Program<VaultZeta>
 ): Promise<TransactionInstruction> => {
-  const {sharesMint, executor} = await getVaultInfo(vault);
+  const {sharesMint, executor} = await getVaultInfo(vault.publicKey);
   const lendingMarketAuthority = await getLendingMarketAuthority(reserve.lendingMarket);
   return await program.methods
     .deposit(amountIn)
     .accountsStrict({
-      vault,
+      vault: vault.publicKey,
       sharesMint,
       executor,
       reserve: reserve.publicKey,
       userShares,
       userTokenAccount,
       userAccount: authority,
-      collateralVault: collateralVault,
+      collateralVault: vault.collateralVault,
       reserveLiquiditySupply: reserve.liquidity.supplyPubkey,
       reserveCollateralMint: reserve.collateral.mintPubkey,
       lendingMarket: reserve.lendingMarket,

@@ -11,6 +11,7 @@ import {getVault, getVaultInfo} from "../app/src/pda/vault";
 import {getOrCreateATA} from "./util";
 import {SOL_MINT, USDC_MINT} from "../app/src/pubkeys";
 import {mintTo, syncNative} from "@solana/spl-token";
+import {Vault} from "../app/src/structs/vault";
 
 const anchor = require('@project-serum/anchor');
 const provider = anchor.AnchorProvider.local();
@@ -49,7 +50,7 @@ describe('Vault Zeta Markets + Solend', function () {
   describe("cUSDC vault", () => {
     it('should initialize cUSDC vault', async () => {
       const data = await manager.createVault(
-        new BN(10 ** 12),
+        new BN(10 ** 13),
         new BN(1000),
         authority,
         new PublicKey("BgxfHJDzm44T7XG68MYKx7YisTjZu73tVovyZSjJMpmw"),
@@ -79,6 +80,7 @@ describe('Vault Zeta Markets + Solend', function () {
         [],
         {commitment: "confirmed"}
       );
+      await manager.updateVaults();
       const data = await manager.deposit(
         new BN(10 ** 12),
         user,
@@ -117,7 +119,7 @@ describe('Vault Zeta Markets + Solend', function () {
       console.log(data);
     });
     it('should reinvest zeta from cUSDC vault', async () => {
-      const vaultData = await program.account.vault.fetch(vaultUSDC);
+      const vaultData = await manager.validate<Vault>(vaultUSDC);
 
       await mintTo(
         provider.connection,
@@ -151,7 +153,7 @@ describe('Vault Zeta Markets + Solend', function () {
       console.log(data);
     });
     it('should reinvest to cUSDC vault', async () => {
-      const vaultData = await program.account.vault.fetch(vaultUSDC);
+      const vaultData = await manager.validate<Vault>(vaultUSDC);
 
       await mintTo(
         provider.connection,
@@ -173,7 +175,7 @@ describe('Vault Zeta Markets + Solend', function () {
   describe("cSOL vault", () => {
     it('should initialize cSOL vault', async () => {
       const data = await manager.createVault(
-        new BN(10 ** 12),
+        new BN(10 ** 13),
         new BN(1000),
         authority,
         new PublicKey("8PbodeaosQP19SjYFx855UMqWxH2HynZLdBXmsrbac36"),
@@ -200,7 +202,7 @@ describe('Vault Zeta Markets + Solend', function () {
         userAccount.address,
         {commitment: "confirmed"}
       )
-
+      await manager.updateVaults();
       const data = await manager.deposit(
         new BN(10 ** 12),
         user,
@@ -238,11 +240,36 @@ describe('Vault Zeta Markets + Solend', function () {
       );
       console.log(data);
     });
-    it('should swap underlying to usdc', async () => {
-      throw new Error("not implemented");
+    it('should swap usdc to underlying', async () => {
+      const vaultData = await manager.validate<Vault>(vaultSOL);
+      await mintTo(
+        provider.connection,
+        authority,
+        USDC_MINT,
+        vaultData.usdcVault,
+        authority,
+        10 ** 6
+      );
+
+      const data = await manager.swapToUnderlying(
+        authority,
+        vaultSOL,
+        new PublicKey("HJPjoWUrhoZzkNfRpHuieeFk9WcZWjwy6PBjZ81ngndJ")
+      );
+      console.log(data);
     });
+
+    it('should swap underlying to usdc', async () => {
+      const data = await manager.swapToUsdc(
+        authority,
+        vaultSOL,
+        new PublicKey("HJPjoWUrhoZzkNfRpHuieeFk9WcZWjwy6PBjZ81ngndJ")
+      );
+      console.log(data);
+    });
+
     it('should reinvest zeta from cSOL vault', async () => {
-      const vaultData = await program.account.vault.fetch(vaultSOL);
+      const vaultData = await manager.validate<Vault>(vaultSOL);
 
       await mintTo(
         provider.connection,
@@ -277,9 +304,9 @@ describe('Vault Zeta Markets + Solend', function () {
 
     });
     it('should reinvest to cSOL vault', async () => {
-      const vaultData = await program.account.vault.fetch(vaultSOL);
+      const vaultData = await manager.validate<Vault>(vaultSOL);
 
-      await manager.devnetAirdrop(10000, vaultData.underlyingVault);
+      await manager.devnetAirdrop(10, vaultData.underlyingVault);
       await syncNative(
         provider.connection,
         authority,

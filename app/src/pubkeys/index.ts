@@ -27,6 +27,10 @@ export const SOL_MINT = new PublicKey(
   "So11111111111111111111111111111111111111112"
 );
 
+export const WHIRLPOOL_PROGRAM_ID = new PublicKey(
+  "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+);
+
 // export const ZETA_SERUM_PROGRAM_ID = new PublicKey(
 //   '5CmWtUihvSrJpaUrpJ3H1jUa9DRjYz4v2xs6c3EgQWMf' // DEVNET
 // );

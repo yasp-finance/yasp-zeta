@@ -6,27 +6,26 @@ import {CLOCK_PROGRAM_ID, TOKEN_PROGRAM_ID, SOLEND_PROGRAM_ID} from "../pubkeys"
 import {getVaultInfo} from "../pda/vault";
 import {Reserve} from "../structs/solend";
 import {getLendingMarketAuthority} from "../pda/solend";
+import {Vault} from "../structs/vault";
 
 
 export const createReinvestSolendIx = async (
   amountIn: BN,
   authority: PublicKey,
-  vault: PublicKey,
-  collateralVault: PublicKey,
-  underlyingVault: PublicKey,
+  vault: Vault,
   reserve: Reserve,
   program: Program<VaultZeta>
 ): Promise<TransactionInstruction> => {
-  const {executor} = await getVaultInfo(vault);
+  const {executor} = await getVaultInfo(vault.publicKey);
   const lendingMarketAuthority = await getLendingMarketAuthority(reserve.lendingMarket);
   return await program.methods
     .reinvestSolend()
     .accountsStrict({
-      vault,
+      vault: vault.publicKey,
       executor,
       reserve: reserve.publicKey,
-      collateralVault: collateralVault,
-      underlyingVault: underlyingVault,
+      collateralVault: vault.collateralVault,
+      underlyingVault: vault.underlyingVault,
       reserveLiquiditySupply: reserve.liquidity.supplyPubkey,
       reserveCollateralMint: reserve.collateral.mintPubkey,
       lendingMarket: reserve.lendingMarket,

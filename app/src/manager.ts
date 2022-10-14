@@ -23,11 +23,17 @@ import {SerumMarket} from "./structs/serum";
 import {simulateTransaction} from "@project-serum/anchor/dist/cjs/utils/rpc";
 import {createBidOrderIx} from "./instructions/bid-order";
 import {createUpdatePricingIx} from "./instructions/update-pricing";
+import {WhirlpoolLoader} from "./loaders/whirlpool";
+import {VaultLoader} from "./loaders/vault";
+import {Vault} from "./structs/vault";
+import {Whirlpool} from "./structs/whirlpool";
 
 export class Manager {
   private readonly serumLoader: SerumLoader;
   private readonly solendLoader: SolendLoader;
   private readonly zetaMarketsLoader: ZetaMarketsLoader;
+  private readonly whirlpoolLoader: WhirlpoolLoader;
+  private readonly vaultLoader: VaultLoader;
   private readonly program: Program<VaultZeta>;
 
   mapper = new Map();
@@ -36,6 +42,8 @@ export class Manager {
     this.serumLoader = new SerumLoader(url);
     this.solendLoader = new SolendLoader(url);
     this.zetaMarketsLoader = new ZetaMarketsLoader(url);
+    this.whirlpoolLoader = new WhirlpoolLoader(url);
+    this.vaultLoader = new VaultLoader(url);
     this.program = program;
   }
 
@@ -47,14 +55,26 @@ export class Manager {
     return data;
   }
 
+  async updateVaults() {
+    const vaultMapper = await this.vaultLoader.preload();
+    this.mapper = new Map([
+      ...this.mapper.entries(),
+      ...vaultMapper.entries()
+    ]);
+  }
+
   async preload() {
     const serumMapper = await this.serumLoader.preload();
     const solendMapper = await this.solendLoader.preload();
     const zetaMarketsMapper = await this.zetaMarketsLoader.preload();
+    const whirlpoolMapper = await this.whirlpoolLoader.preload();
+    const vaultMapper = await this.vaultLoader.preload();
     this.mapper = new Map([
       ...serumMapper.entries(),
       ...solendMapper.entries(),
       ...zetaMarketsMapper.entries(),
+      ...whirlpoolMapper.entries(),
+      ...vaultMapper.entries()
     ]);
     return this.mapper;
   }
@@ -114,11 +134,11 @@ export class Manager {
     user: Signer,
     userTokenAccount: PublicKey,
     userSharesAccount: PublicKey,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const reserve = this.validate<Reserve>(data.reserve);
+    const vault = this.validate<Vault>(vaultAddress);
+    const reserve = this.validate<Reserve>(vault.reserve);
     return this.exec([
       await createDepositIx(
         amountOut,
@@ -126,7 +146,6 @@ export class Manager {
         userTokenAccount,
         userSharesAccount,
         vault,
-        data.collateralVault,
         reserve,
         this.program
       ),
@@ -139,11 +158,11 @@ export class Manager {
     user: Signer,
     userTokenAccount: PublicKey,
     userSharesAccount: PublicKey,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const reserve = this.validate<Reserve>(data.reserve);
+    const vault = this.validate<Vault>(vaultAddress);
+    const reserve = this.validate<Reserve>(vault.reserve);
     return this.exec([
       await createWithdrawIx(
         amountOut,
@@ -151,7 +170,6 @@ export class Manager {
         userTokenAccount,
         userSharesAccount,
         vault,
-        data.collateralVault,
         reserve,
         this.program
       ),
@@ -160,12 +178,12 @@ export class Manager {
 
   async initOpenOrders(
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     marketAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    const vault = this.validate<Vault>(vaultAddress);
+    const group = this.validate<ZetaGroup>(vault.zetaGroup);
     const market = this.validate<SerumMarket>(marketAddress);
     return this.exec([
       await createInitOpenOrdersIx(
@@ -180,11 +198,11 @@ export class Manager {
 
   async harvestYield(
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const reserve = this.validate<Reserve>(data.reserve);
+    const vault = this.validate<Vault>(vaultAddress);
+    const reserve = this.validate<Reserve>(vault.reserve);
     return this.exec([
       await createHarvestYieldIx(
         authority.publicKey,
@@ -197,16 +215,15 @@ export class Manager {
 
   async reinvestZeta(
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    const vault = this.validate<Vault>(vaultAddress);
+    const group = this.validate<ZetaGroup>(vault.zetaGroup);
     return this.exec([
       await createReinvestZetaIx(
         authority.publicKey,
         vault,
-        data.usdcVault,
         group,
         this.program
       ),
@@ -217,11 +234,11 @@ export class Manager {
     strike: BN,
     kind: "put" | "call",
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    const vault = this.validate<Vault>(vaultAddress);
+    const group = this.validate<ZetaGroup>(vault.zetaGroup);
     const productId = group.products.findIndex(p => {
       const sameStrike = new BN(p.strike.value).eq(strike);
       return sameStrike && p.strike.isSet && p.kind === 1;
@@ -256,17 +273,16 @@ export class Manager {
   async redeemZeta(
     amount: BN,
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const group = this.validate<ZetaGroup>(data.zetaGroup);
+    const vault = this.validate<Vault>(vaultAddress);
+    const group = this.validate<ZetaGroup>(vault.zetaGroup);
     return this.exec([
       await createRedeemZetaIx(
         amount,
         authority.publicKey,
         vault,
-        data.usdcVault,
         group,
         this.program
       ),
@@ -276,18 +292,16 @@ export class Manager {
   async reinvestSolend(
     amount: BN,
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const reserve = this.validate<Reserve>(data.reserve);
+    const vault = this.validate<Vault>(vaultAddress);
+    const reserve = this.validate<Reserve>(vault.reserve);
     return this.exec([
       await createReinvestSolendIx(
         amount,
         authority.publicKey,
         vault,
-        data.collateralVault,
-        data.underlyingVault,
         reserve,
         this.program
       ),
@@ -296,14 +310,17 @@ export class Manager {
 
   async swapToUnderlying(
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
+    whirlpoolAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
+    const vault = this.validate<Vault>(vaultAddress);
+    const whirlpool = this.validate<Whirlpool>(whirlpoolAddress);
     return this.exec([
       await createSwapToUnderlyingIx(
         authority.publicKey,
         vault,
+        whirlpool,
         this.program
       ),
     ], [authority], simulate);
@@ -311,15 +328,17 @@ export class Manager {
 
   async swapToUsdc(
     authority: Signer,
-    vault: PublicKey,
+    vaultAddress: PublicKey,
+    whirlpoolAddress: PublicKey,
     simulate = false
   ) {
-    const data = await this.program.account.vault.fetch(vault);
-    const reserve = this.validate<Reserve>(data.reserve);
+    const vault = this.validate<Vault>(vaultAddress);
+    const whirlpool = this.validate<Whirlpool>(whirlpoolAddress);
     return this.exec([
       await createSwapToUSDCIx(
         authority.publicKey,
         vault,
+        whirlpool,
         this.program
       ),
     ], [authority], simulate);
