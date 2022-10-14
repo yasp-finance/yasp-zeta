@@ -269,22 +269,21 @@ const bidOrder = async (authority: Signer, manager: Manager, simulate: boolean) 
       message: 'Strike price:',
       validate: async (input) => {
         return parseInt(input) > 0;
-      }
+      },
+    },
+    {
+      type: 'list',
+      name: 'kind',
+      message: 'Kind:',
+      choices: ["put", "call"]
     }
   ]);
-  const put = await manager.bidOrder(
+  return await manager.bidOrder(
     answers.strike,
-    "put",
+    answers.kind,
     authority,
     new PublicKey(answers.vault)
   );
-  const call = await manager.bidOrder(
-    answers.strike,
-    "call",
-    authority,
-    new PublicKey(answers.vault)
-  );
-  return {call, put};
 }
 
 
