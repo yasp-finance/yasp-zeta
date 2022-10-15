@@ -3,11 +3,12 @@ import arg from 'arg';
 
 import {Manager} from "./manager";
 import {PublicKey, Signer} from "@solana/web3.js";
-import {Reserve, ZetaGroup} from "./structs";
+import {Reserve, Vault, ZetaGroup} from "./structs";
 import {getProgramFromFile} from "./utils/get-program-from-file";
 import {VaultZeta} from "./artifacts/types/vault_zeta";
-import {getVault} from "./pda/vault";
+import {getVault, getVaultInfo} from "./pda/vault";
 import BN from "bn.js";
+import {getOrCreateATA} from "../../tests/util";
 const anchor = require('@project-serum/anchor');
 
 
@@ -61,13 +62,16 @@ const createVault = async (
     console.log("That vault is already exists");
     return ""
   } catch {
+    const {sharesMint, executor} = await getVaultInfo(vault);
     console.table({
       reserve: answers.reserve,
       zeta: answers.zeta,
       authority: authority.publicKey.toString(),
       newVault: vault.toString(),
       depositLimit: answers.limit,
-      fee: answers.managementFeeBps
+      fee: answers.managementFeeBps,
+      executor: executor.toString(),
+      sharesMint: sharesMint.toString()
     });
   }
   const correct = await inquirer.prompt([
@@ -81,8 +85,9 @@ const createVault = async (
     return "";
   }
   console.log("[*] Creating new Vault..");
+  const reserve = manager.validate<Reserve>(new PublicKey(answers.reserve));
   const response = await manager.createVault(
-    new BN(answers.limit),
+    new BN(+answers.limit * 10 ** reserve.liquidity.mintDecimals),
     new BN(+answers.managementFeeBps * 10000),
     authority,
     new PublicKey(answers.reserve),
@@ -109,7 +114,7 @@ const deposit = async (
       name: 'deposit',
       message: 'Deposit amount:',
       validate: async (input) => {
-        return parseInt(input) > 0;
+        return parseFloat(input) > 0;
       }
     }
   ]);
@@ -128,11 +133,24 @@ const deposit = async (
     return "";
   }
   console.log("[*] Depositing..");
+  const vault = manager.validate<Vault>(new PublicKey(answers.vault));
+  const {sharesMint} = await getVaultInfo(vault.publicKey);
+  const reserve = manager.validate<Reserve>(vault.reserve);
+  const userAccount = await getOrCreateATA(
+    reserve.liquidity.mintPubkey,
+    manager.program.provider,
+    authority.publicKey
+  );
+  const userShares = await getOrCreateATA(
+    sharesMint,
+    manager.program.provider,
+    authority.publicKey
+  );
   return manager.deposit(
-    new BN(answers.deposit),
+    new BN(+answers.deposit * 10 ** reserve.liquidity.mintDecimals),
     authority,
-    new PublicKey(answers.vault),
-    new PublicKey(answers.vault),
+    userAccount.address,
+    userShares.address,
     new PublicKey(answers.vault),
     simulate
   );
@@ -152,13 +170,13 @@ const withdraw = async (authority: Signer, manager: Manager, simulate: boolean) 
       name: 'withdraw',
       message: 'Withdraw amount:',
       validate: async (input) => {
-        return parseInt(input) > 0;
+        return parseFloat(input) > 0;
       }
     }
   ]);
   console.table({
     vault: answers.vault.toString(),
-    deposit: answers.deposit,
+    withdraw: answers.withdraw,
   });
   const correct = await inquirer.prompt([
     {
@@ -171,11 +189,24 @@ const withdraw = async (authority: Signer, manager: Manager, simulate: boolean) 
     return "";
   }
   console.log("[*] Withdrawing..");
+  const vault = manager.validate<Vault>(new PublicKey(answers.vault));
+  const {sharesMint} = await getVaultInfo(vault.publicKey);
+  const reserve = manager.validate<Reserve>(vault.reserve);
+  const userAccount = await getOrCreateATA(
+    reserve.liquidity.mintPubkey,
+    manager.program.provider,
+    authority.publicKey
+  );
+  const userShares = await getOrCreateATA(
+    sharesMint,
+    manager.program.provider,
+    authority.publicKey
+  );
   return manager.withdraw(
-    new BN(answers.withdraw),
+    new BN(answers.withdraw * 10 ** 9),
     authority,
-    new PublicKey(answers.vault),
-    new PublicKey(answers.vault),
+    userAccount.address,
+    userShares.address,
     new PublicKey(answers.vault),
     simulate
   );
@@ -221,18 +252,9 @@ const reinvestSolend = async (authority: Signer, manager: Manager, simulate: boo
       name: 'vault',
       message: 'Vault:',
       choices: [...vaults.keys()]
-    },
-    {
-      type: 'input',
-      name: 'amount',
-      message: 'Reinvest amount:',
-      validate: async (input) => {
-        return parseInt(input) > 0;
-      }
     }
   ]);
   return manager.reinvestSolend(
-    new BN(answers.amount),
     authority,
     new PublicKey(answers.vault)
   );
@@ -279,7 +301,7 @@ const bidOrder = async (authority: Signer, manager: Manager, simulate: boolean) 
     }
   ]);
   return await manager.bidOrder(
-    answers.strike,
+    new BN(answers.strike),
     answers.kind,
     authority,
     new PublicKey(answers.vault)

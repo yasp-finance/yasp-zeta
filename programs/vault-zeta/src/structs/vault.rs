@@ -108,6 +108,7 @@ impl Vault {
 
   pub fn free_funds(&self, now: i64) -> Option<u64> {
     let locked_profit = self.current_locked_profit(now).unwrap();
+    msg!("locked_profit: {}, total_assets: {}", locked_profit, self.total_assets().unwrap());
     self.total_assets().unwrap().checked_sub(locked_profit)
   }
 

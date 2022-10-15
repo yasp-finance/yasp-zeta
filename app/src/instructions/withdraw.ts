@@ -32,6 +32,7 @@ export const createWithdrawIx = async (
       userTokenAccount,
       userAccount: authority,
       collateralVault: vault.collateralVault,
+      underlyingVault: vault.underlyingVault,
       reserveLiquiditySupply: reserve.liquidity.supplyPubkey,
       reserveCollateralMint: reserve.collateral.mintPubkey,
       lendingMarket: reserve.lendingMarket,

@@ -39,9 +39,10 @@ const executeTxs = async (
   provider: Provider,
 ): Promise<ReturnType<typeof provider.connection.confirmTransaction>> => {
   const transaction = new Transaction().add(...txs);
+  //@ts-ignore
   transaction.feePayer = provider.wallet.publicKey;
   transaction.recentBlockhash = await getBlockHash(provider.connection);
-
+  //@ts-ignore
   const signedTx = await provider.wallet.signTransaction(transaction);
   const txId = await provider.connection.sendRawTransaction(
     signedTx.serialize(),

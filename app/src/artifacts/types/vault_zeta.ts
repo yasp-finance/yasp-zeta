@@ -207,6 +207,11 @@ export type VaultZeta = {
           "isSigner": false
         },
         {
+          "name": "underlyingVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "reserveLiquiditySupply",
           "isMut": true,
           "isSigner": false
@@ -1324,31 +1329,13 @@ export type VaultZeta = {
             "type": "publicKey"
           },
           {
+            "name": "statistic",
+            "type": {
+              "defined": "Statistic"
+            }
+          },
+          {
             "name": "depositLimit",
-            "type": "u64"
-          },
-          {
-            "name": "totalDeposit",
-            "type": "u64"
-          },
-          {
-            "name": "totalWithdraw",
-            "type": "u64"
-          },
-          {
-            "name": "totalGain",
-            "type": "u64"
-          },
-          {
-            "name": "totalHarvest",
-            "type": "u64"
-          },
-          {
-            "name": "lockedProfitDegradation",
-            "type": "u64"
-          },
-          {
-            "name": "lockedProfit",
             "type": "u64"
           },
           {
@@ -1360,11 +1347,11 @@ export type VaultZeta = {
             "type": "i64"
           },
           {
-            "name": "lastHarvest",
-            "type": "i64"
+            "name": "totalHarvest",
+            "type": "u64"
           },
           {
-            "name": "lastGain",
+            "name": "lastHarvest",
             "type": "i64"
           },
           {
@@ -1813,6 +1800,38 @@ export type VaultZeta = {
             "type": {
               "defined": "OrderState"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Statistic",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalDeposit",
+            "type": "u64"
+          },
+          {
+            "name": "totalWithdraw",
+            "type": "u64"
+          },
+          {
+            "name": "totalGain",
+            "type": "u64"
+          },
+          {
+            "name": "lockedProfitDegradation",
+            "type": "u64"
+          },
+          {
+            "name": "lockedProfit",
+            "type": "u64"
+          },
+          {
+            "name": "lastGain",
+            "type": "i64"
           }
         ]
       }
@@ -2618,6 +2637,11 @@ export const IDL: VaultZeta = {
           "isSigner": false
         },
         {
+          "name": "underlyingVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "reserveLiquiditySupply",
           "isMut": true,
           "isSigner": false
@@ -3735,31 +3759,13 @@ export const IDL: VaultZeta = {
             "type": "publicKey"
           },
           {
+            "name": "statistic",
+            "type": {
+              "defined": "Statistic"
+            }
+          },
+          {
             "name": "depositLimit",
-            "type": "u64"
-          },
-          {
-            "name": "totalDeposit",
-            "type": "u64"
-          },
-          {
-            "name": "totalWithdraw",
-            "type": "u64"
-          },
-          {
-            "name": "totalGain",
-            "type": "u64"
-          },
-          {
-            "name": "totalHarvest",
-            "type": "u64"
-          },
-          {
-            "name": "lockedProfitDegradation",
-            "type": "u64"
-          },
-          {
-            "name": "lockedProfit",
             "type": "u64"
           },
           {
@@ -3771,11 +3777,11 @@ export const IDL: VaultZeta = {
             "type": "i64"
           },
           {
-            "name": "lastHarvest",
-            "type": "i64"
+            "name": "totalHarvest",
+            "type": "u64"
           },
           {
-            "name": "lastGain",
+            "name": "lastHarvest",
             "type": "i64"
           },
           {
@@ -4224,6 +4230,38 @@ export const IDL: VaultZeta = {
             "type": {
               "defined": "OrderState"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Statistic",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalDeposit",
+            "type": "u64"
+          },
+          {
+            "name": "totalWithdraw",
+            "type": "u64"
+          },
+          {
+            "name": "totalGain",
+            "type": "u64"
+          },
+          {
+            "name": "lockedProfitDegradation",
+            "type": "u64"
+          },
+          {
+            "name": "lockedProfit",
+            "type": "u64"
+          },
+          {
+            "name": "lastGain",
+            "type": "i64"
           }
         ]
       }

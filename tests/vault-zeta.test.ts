@@ -164,7 +164,6 @@ describe('Vault Zeta Markets + Solend', function () {
         10 ** 9
       );
       const data = await manager.reinvestSolend(
-        new BN(10 ** 9),
         authority,
         vaultUSDC
       );
@@ -314,7 +313,6 @@ describe('Vault Zeta Markets + Solend', function () {
         {commitment: "confirmed"}
       )
       const data = await manager.reinvestSolend(
-        new BN(10 ** 9),
         authority,
         vaultSOL
       );

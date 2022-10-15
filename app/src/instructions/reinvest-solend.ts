@@ -10,7 +10,6 @@ import {Vault} from "../structs/vault";
 
 
 export const createReinvestSolendIx = async (
-  amountIn: BN,
   authority: PublicKey,
   vault: Vault,
   reserve: Reserve,

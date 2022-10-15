@@ -26,7 +26,7 @@ export class Manager {
   private readonly zetaMarketsLoader: ZetaMarketsLoader;
   private readonly whirlpoolLoader: WhirlpoolLoader;
   private readonly vaultLoader: VaultLoader;
-  private readonly program: Program<VaultZeta>;
+  program: Program<VaultZeta>;
 
   mapper = new Map();
 
@@ -283,7 +283,6 @@ export class Manager {
   }
 
   async reinvestSolend(
-    amount: BN,
     authority: Signer,
     vaultAddress: PublicKey,
     simulate = false
@@ -292,7 +291,6 @@ export class Manager {
     const reserve = this.validate<Reserve>(vault.reserve);
     return this.exec([
       await createReinvestSolendIx(
-        amount,
         authority.publicKey,
         vault,
         reserve,
