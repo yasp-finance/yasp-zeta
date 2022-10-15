@@ -60,6 +60,12 @@ export class Manager {
     const serumMapper = await this.serumLoader.preload();
     const solendMapper = await this.solendLoader.preload();
     const zetaMarketsMapper = await this.zetaMarketsLoader.preload();
+    // console.log({
+    //   //@ts-ignore
+    //   solend: [...solendMapper.entries()].map(([a, b]) => [a, b.liquidity.mintPubkey.toString()]),
+    //   //@ts-ignore
+    //   zeta: [...zetaMarketsMapper.entries()].map(([a,b]) => [a, b.underlyingMint.toString()])
+    // })
     const whirlpoolMapper = await this.whirlpoolLoader.preload();
     const vaultMapper = await this.vaultLoader.preload();
     this.mapper = new Map([

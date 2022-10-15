@@ -32,30 +32,25 @@ export const WHIRLPOOL_PROGRAM_ID = new PublicKey(
 );
 
 // export const ZETA_SERUM_PROGRAM_ID = new PublicKey(
-//   '5CmWtUihvSrJpaUrpJ3H1jUa9DRjYz4v2xs6c3EgQWMf' // DEVNET
+//   'zDEXqXEG7gAyxb1Kg9mK5fPnUdENCGKzWrM21RMdWRq'
 // );
 
 export const ZETA_SERUM_PROGRAM_ID = new PublicKey(
-  'zDEXqXEG7gAyxb1Kg9mK5fPnUdENCGKzWrM21RMdWRq'
-);
-
-
-// export const SERUM_PROGRAM_ID_V3 = new PublicKey(
-//   "DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY" // DEVNET
-// );
-
-export const SOLEND_PROGRAM_ID = new PublicKey(
-  "So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo"
+  '5CmWtUihvSrJpaUrpJ3H1jUa9DRjYz4v2xs6c3EgQWMf' // DEVNET
 );
 
 // export const SOLEND_PROGRAM_ID = new PublicKey(
-//   "ALend7Ketfx5bxh6ghsCDXAoDrhvEmsXT3cynB6aPLgx" // DEVNET
+//   "So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo"
 // );
 
-export const ZETA_PROGRAM_ID  = new PublicKey(
-  "ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD"
+export const SOLEND_PROGRAM_ID = new PublicKey(
+  "ALend7Ketfx5bxh6ghsCDXAoDrhvEmsXT3cynB6aPLgx" // DEVNET
 );
 
-// export const ZETA_PROGRAM_ID = new PublicKey(
-//   "BG3oRikW8d16YjUEmX3ZxHm9SiJzrGtMhsSR8aCw1Cd7" // DEVNET
+// export const ZETA_PROGRAM_ID  = new PublicKey(
+//   "ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD"
 // );
+
+export const ZETA_PROGRAM_ID = new PublicKey(
+  "BG3oRikW8d16YjUEmX3ZxHm9SiJzrGtMhsSR8aCw1Cd7" // DEVNET
+);
