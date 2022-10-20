@@ -3,6 +3,12 @@ pub mod zeta_program {
   anchor_lang::prelude::declare_id!("BG3oRikW8d16YjUEmX3ZxHm9SiJzrGtMhsSR8aCw1Cd7"); // devnet
 }
 
+pub use zeta_usdc::ID as USDC;
+mod zeta_usdc {
+  // anchor_lang::prelude::declare_id!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  anchor_lang::prelude::declare_id!("6PEh8n3p7BbCTykufbq1nSJYAZvUp6gSwEANAs1ZhsCX");
+}
+
 pub mod pyth_client;
 pub mod zeta_client;
 mod zeta_calculations;

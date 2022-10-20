@@ -19,9 +19,13 @@ export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
   'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
 );
 
+// export const USDC_MINT = new PublicKey(
+//   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+// );
+
 export const USDC_MINT = new PublicKey(
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-);
+  "6PEh8n3p7BbCTykufbq1nSJYAZvUp6gSwEANAs1ZhsCX" // DEVNET
+)
 
 export const SOL_MINT = new PublicKey(
   "So11111111111111111111111111111111111111112"

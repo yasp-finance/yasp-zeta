@@ -9,8 +9,6 @@ import {Reserve} from "../structs/solend";
 import {ZetaGroup} from "../structs/zeta-markets";
 import {getMarginAccount} from "../pda/zeta-markets";
 import {createAssociatedTokenAccountInstruction} from "../utils/create-associated-account-ix";
-import {createAccount} from "@solana/spl-token";
-
 
 export const createInitializeIx = async (
   depositLimit: BN,

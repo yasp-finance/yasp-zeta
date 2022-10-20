@@ -40,7 +40,7 @@ pub struct InitializeVault<'info> {
   )]
   pub underlying_vault: Box<Account<'info, TokenAccount>>,
   #[account(
-  token::mint = USDC,
+  token::mint = cpi::zeta::USDC,
   token::authority = executor.key()
   )]
   pub usdc_vault: Box<Account<'info, TokenAccount>>,
